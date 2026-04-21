@@ -1,0 +1,101 @@
+alias,hardware_type,processor_id,configuration,hw_code,hw_make,hw_model
+PACU M-324 ACU,energy_meter,0000000078a332bc,accu_rev_1310,energy_meter-501--0000000078a332bc,Acrel,ADL400(3-Phase EM)
+PACU M-325 ACU,energy_meter,0000000078a332bc,accu_rev_1310,energy_meter-502--0000000078a332bc,Acrel,ADL400(3-Phase EM)
+PACU M-326 ACU,energy_meter,0000000078a332bc,accu_rev_1310,energy_meter-503--0000000078a332bc,Acrel,ADL400(3-Phase EM)
+PACU M-327 ACU,energy_meter,0000000078a332bc,accu_rev_1310,energy_meter-504--0000000078a332bc,Acrel,ADL400(3-Phase EM)
+Elevator EM 5th Floor,energy_meter,0000000078a332bc,accu_rev_1310,energy_meter-505--0000000078a332bc,Acrel,ADL400(3-Phase EM)
+COOLING TOWER ROOFTOP,energy_meter,0000000078a332bc,meter_schneider,energy_meter-506--0000000078a332bc,Schneider,PM2100(3-Phase EM)
+LRC Rectifier Sys A,dc_plant,0000000078a332bc,huawei_snmp,dc_plant-507--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys A Battery-1,battery,0000000078a332bc,huawei_snmp,battery-508--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B,dc_plant,0000000078a332bc,huawei_snmp,dc_plant-509--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-1,battery,0000000078a332bc,huawei_snmp,battery-510--0000000078a332bc,Huawei,SMU02B
+Battery-1,battery,0000000078a332bc,lion_battery,battery-511--0000000078a332bc,ENCAP,
+Battery-2,battery,0000000078a332bc,lion_battery,battery-512--0000000078a332bc,ENCAP,
+Battery-3,battery,0000000078a332bc,lion_battery,battery-513--0000000078a332bc,ENCAP,
+Battery-4,battery,0000000078a332bc,lion_battery,battery-514--0000000078a332bc,ENCAP,
+Battery-5,battery,0000000078a332bc,lion_battery,battery-515--0000000078a332bc,ENCAP,
+Battery-6,battery,0000000078a332bc,lion_battery,battery-516--0000000078a332bc,ENCAP,
+Battery-7,battery,0000000078a332bc,lion_battery,battery-517--0000000078a332bc,ENCAP,
+Battery-8,battery,0000000078a332bc,lion_battery,battery-518--0000000078a332bc,ENCAP,
+Battery-9,battery,0000000078a332bc,lion_battery,battery-519--0000000078a332bc,ENCAP,
+Battery-10,battery,0000000078a332bc,lion_battery,battery-520--0000000078a332bc,ENCAP,
+Battery-11,battery,0000000078a332bc,lion_battery,battery-521--0000000078a332bc,ENCAP,
+Battery-12,battery,0000000078a332bc,lion_battery,battery-522--0000000078a332bc,ENCAP,
+Battery-13,battery,0000000078a332bc,lion_battery,battery-523--0000000078a332bc,ENCAP,
+Battery-14,battery,0000000078a332bc,lion_battery,battery-524--0000000078a332bc,ENCAP,
+Battery-15,battery,0000000078a332bc,lion_battery,battery-525--0000000078a332bc,ENCAP,
+Battery-16,battery,0000000078a332bc,lion_battery,battery-526--0000000078a332bc,ENCAP,
+Battery-17,battery,0000000078a332bc,lion_battery,battery-527--0000000078a332bc,ENCAP,
+Battery-18,battery,0000000078a332bc,lion_battery,battery-528--0000000078a332bc,ENCAP,
+Battery-19,battery,0000000078a332bc,lion_battery,battery-529--0000000078a332bc,ENCAP,
+Battery-20,battery,0000000078a332bc,lion_battery,battery-530--0000000078a332bc,ENCAP,
+Battery-21,battery,0000000078a332bc,lion_battery,battery-531--0000000078a332bc,ENCAP,
+Battery-22,battery,0000000078a332bc,lion_battery,battery-532--0000000078a332bc,ENCAP,
+Battery-23,battery,0000000078a332bc,lion_battery,battery-533--0000000078a332bc,ENCAP,
+Battery-24,battery,0000000078a332bc,lion_battery,battery-534--0000000078a332bc,ENCAP,
+Battery-25,battery,0000000078a332bc,lion_battery,battery-535--0000000078a332bc,ENCAP,
+Battery-26,battery,0000000078a332bc,lion_battery,battery-536--0000000078a332bc,ENCAP,
+Battery-27,battery,0000000078a332bc,lion_battery,battery-537--0000000078a332bc,ENCAP,
+Battery-28,battery,0000000078a332bc,lion_battery,battery-538--0000000078a332bc,ENCAP,
+Battery-29,battery,0000000078a332bc,lion_battery,battery-539--0000000078a332bc,ENCAP,
+Battery-30,battery,0000000078a332bc,lion_battery,battery-540--0000000078a332bc,ENCAP,
+NFVI Expander Rack-5,env_sensor,0000000078a332bc,temco_environement,env_sensor-541--0000000078a332bc,,
+Environmental,io,0000000078a332bc,temco_controller_io,io-542--0000000078a332bc,PLC,RMC1216
+Battery-1 Passive,bms,0000000078a332bc,passive,bms-543--0000000078a332bc,,
+Battery-2 Passive,bms,0000000078a332bc,passive,bms-544--0000000078a332bc,,
+Battery-3 Passive,bms,0000000078a332bc,passive,bms-545--0000000078a332bc,,
+Battery-4 Passive,bms,0000000078a332bc,passive,bms-546--0000000078a332bc,,
+Battery-5 Passive,bms,0000000078a332bc,passive,bms-547--0000000078a332bc,,
+Battery-6 Passive,bms,0000000078a332bc,passive,bms-548--0000000078a332bc,,
+Battery-7 Passive,bms,0000000078a332bc,passive,bms-549--0000000078a332bc,,
+Battery-8 Passive,bms,0000000078a332bc,passive,bms-550--0000000078a332bc,,
+Battery-9 Passive,bms,0000000078a332bc,passive,bms-551--0000000078a332bc,,
+Battery-10 Passive,bms,0000000078a332bc,passive,bms-552--0000000078a332bc,,
+Battery-11 Passive,bms,0000000078a332bc,passive,bms-553--0000000078a332bc,,
+Battery-12 Passive,bms,0000000078a332bc,passive,bms-554--0000000078a332bc,,
+Battery-13 Passive,bms,0000000078a332bc,passive,bms-555--0000000078a332bc,,
+Battery-14 Passive,bms,0000000078a332bc,passive,bms-556--0000000078a332bc,,
+Battery-15 Passive,bms,0000000078a332bc,passive,bms-557--0000000078a332bc,,
+Battery-16 Passive,bms,0000000078a332bc,passive,bms-558--0000000078a332bc,,
+Battery-17 Passive,bms,0000000078a332bc,passive,bms-559--0000000078a332bc,,
+Battery-18 Passive,bms,0000000078a332bc,passive,bms-560--0000000078a332bc,,
+Battery-19 Passive,bms,0000000078a332bc,passive,bms-561--0000000078a332bc,,
+Battery-20 Passive,bms,0000000078a332bc,passive,bms-562--0000000078a332bc,,
+Battery-21 Passive,bms,0000000078a332bc,passive,bms-563--0000000078a332bc,,
+Battery-22 Passive,bms,0000000078a332bc,passive,bms-564--0000000078a332bc,,
+Battery-23 Passive,bms,0000000078a332bc,passive,bms-565--0000000078a332bc,,
+Battery-24 Passive,bms,0000000078a332bc,passive,bms-566--0000000078a332bc,,
+Battery-25 Passive,bms,0000000078a332bc,passive,bms-567--0000000078a332bc,,
+Battery-26 Passive,bms,0000000078a332bc,passive,bms-568--0000000078a332bc,,
+Battery-27 Passive,bms,0000000078a332bc,passive,bms-569--0000000078a332bc,,
+Battery-28 Passive,bms,0000000078a332bc,passive,bms-570--0000000078a332bc,,
+Battery-29 Passive,bms,0000000078a332bc,passive,bms-571--0000000078a332bc,,
+Battery-30 Passive,bms,0000000078a332bc,passive,bms-572--0000000078a332bc,,
+LRC Rectifier Sys A Battery Passive,bms,0000000078a332bc,passive,bms-573--0000000078a332bc,,
+LRC Rectifier Sys B Battery Passive,bms,0000000078a332bc,passive,bms-574--0000000078a332bc,,
+Environment,env,0000000078a332bc,passive,bms-575--0000000078a332bc,,
+NFVI Expander Rack-6,env_sensor,0000000078a332bc,temco_environement,env_sensor-576--0000000078a332bc,,
+NFVI Expander Rack-7,env_sensor,0000000078a332bc,temco_environement,env_sensor-577--0000000078a332bc,,
+NFVI Expander Rack-8,env_sensor,0000000078a332bc,temco_environement,env_sensor-578--0000000078a332bc,,
+NFVI Expander Rack-9,env_sensor,0000000078a332bc,temco_environement,env_sensor-579--0000000078a332bc,,
+LRC Rectifier Sys A Battery-2,battery,0000000078a332bc,huawei_snmp,battery-587--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys A Battery-3,battery,0000000078a332bc,huawei_snmp,battery-588--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys A Battery-4,battery,0000000078a332bc,huawei_snmp,battery-589--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys A Battery-5,battery,0000000078a332bc,huawei_snmp,battery-590--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys A Battery-6,battery,0000000078a332bc,huawei_snmp,battery-591--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys A Battery-7,battery,0000000078a332bc,huawei_snmp,battery-592--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys A Battery-8,battery,0000000078a332bc,huawei_snmp,battery-593--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-2,battery,0000000078a332bc,huawei_snmp,battery-594--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-3,battery,0000000078a332bc,huawei_snmp,battery-595--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-4,battery,0000000078a332bc,huawei_snmp,battery-596--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-5,battery,0000000078a332bc,huawei_snmp,battery-597--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-6,battery,0000000078a332bc,huawei_snmp,battery-598--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-7,battery,0000000078a332bc,huawei_snmp,battery-599--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-8,battery,0000000078a332bc,huawei_snmp,battery-600--0000000078a332bc,Huawei,SMU02B
+Airflow Under Floor,env_sensor,0000000078a332bc,temco_environement,env_sensor-601--0000000078a332bc,,
+M-324 Supply Air - Air Flow,env_sensor,0000000078a332bc,temco_environement,env_sensor-602--0000000078a332bc,,
+M-324 Return Air -1 Air Flow,env_sensor,0000000078a332bc,temco_environement,env_sensor-603--0000000078a332bc,,
+M-324 Return Air - 2 Air Flow,env_sensor,0000000078a332bc,temco_environement,env_sensor-604--0000000078a332bc,,
+PACU M-324 ACU Temperatures,env_sensor,0000000078a332bc,temco_environement,env_sensor-609--0000000078a332bc,,
+NFVI Room Humidity,io,0000000078a332bc,humidity,io-610--0000000078a332bc,PLC,PLC101
+NFVI Room Temperature,io,0000000078a332bc,shelter_1_temperature,io-611--0000000078a332bc,PLC,PLC101

@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DC Floor Plan Manager — PLDT</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg:#0d1117; --surface:#161b22; --surface2:#21262d; --border:#30363d;
+  --accent:#58a6ff; --accent2:#3fb950; --warn:#f78166;
+  --text:#e6edf3; --muted:#8b949e;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+
+/* HEADER */
+header{display:flex;align-items:center;gap:9px;padding:0 14px;height:50px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;z-index:200;}
+.logo{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:2px;}
+.hs{width:1px;height:20px;background:var(--border);}
+.ht{font-size:11px;color:var(--muted);}
+.hsp{flex:1;}
+.hb{display:flex;align-items:center;gap:4px;padding:5px 11px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.hb:hover{border-color:var(--accent);color:var(--accent);}
+.hb.p{background:var(--accent);border-color:var(--accent);color:#0d1117;}
+.hb.p:hover{opacity:.85;color:#0d1117;}
+.hb.g{background:var(--accent2);border-color:var(--accent2);color:#0d1117;}
+.hb.g:hover{opacity:.85;color:#0d1117;}
+.hb.r{border-color:var(--warn);color:var(--warn);}
+.hb.r:hover{background:var(--warn);color:#0d1117;}
+
+/* SUMMARY BAR */
+#summaryBar{display:flex;align-items:stretch;height:44px;background:var(--surface);border-bottom:2px solid var(--border);flex-shrink:0;z-index:150;overflow:hidden;}
+.sb-sec{display:flex;align-items:center;gap:8px;padding:0 16px;border-right:1px solid var(--border);flex-shrink:0;}
+.sb-total-label{font-size:8px;font-family:'IBM Plex Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.sb-total-num{font-size:24px;font-weight:700;color:var(--accent);font-family:'IBM Plex Mono',monospace;line-height:1;min-width:28px;}
+.sb-chips{flex:1;display:flex;align-items:center;gap:5px;padding:0 12px;overflow-x:auto;scrollbar-width:none;}
+.sb-chips::-webkit-scrollbar{display:none;}
+.sb-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);font-size:9px;font-family:'IBM Plex Mono',monospace;white-space:nowrap;flex-shrink:0;}
+.sb-chip .sc-dot{width:6px;height:6px;border-radius:50%;}
+.sb-chip .sc-lbl{color:var(--muted);}
+.sb-chip .sc-cnt{font-weight:700;color:var(--text);}
+.sb-vsep{width:1px;height:18px;background:var(--border);flex-shrink:0;margin:0 3px;}
+.sb-toggle{display:flex;align-items:center;gap:5px;padding:0 14px;border-left:1px solid var(--border);background:transparent;color:var(--muted);font-family:'IBM Plex Sans',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;border-top:none;border-bottom:none;border-right:none;}
+.sb-toggle:hover{color:var(--accent);background:rgba(88,166,255,.06);}
+.sb-toggle.on{color:var(--accent);background:rgba(88,166,255,.1);}
+
+/* LAYOUT */
+.layout{display:flex;flex:1;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{width:272px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.ss{padding:11px 13px 9px;border-bottom:1px solid var(--border);}
+.sst{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+.upb{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;padding:6px;border:1px dashed var(--border);border-radius:5px;background:transparent;color:var(--muted);font-size:11px;cursor:pointer;transition:all .15s;}
+.upb:hover{border-color:var(--accent);color:var(--accent);}
+
+/* Manual add form */
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:5px;}
+.mg input,.mg select{padding:4px 7px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:10px;outline:none;transition:border-color .15s;width:100%;}
+.mg input:focus{border-color:var(--accent);}
+.mg input::placeholder{color:var(--muted);}
+.mg select{cursor:pointer;}
+.mfc{grid-column:1/-1;}
+.ar{display:flex;gap:4px;margin-top:5px;}
+.ar input{flex:1;padding:4px 7px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:10px;outline:none;}
+.ar input:focus{border-color:var(--accent);}
+.ar input::placeholder{color:var(--muted);}
+.ar button{padding:4px 11px;background:var(--accent2);border:none;border-radius:4px;color:#0d1117;font-size:10px;font-weight:600;cursor:pointer;}
+.ar button:hover{opacity:.8;}
+
+/* Filters */
+.fb{display:flex;gap:3px;padding:6px 13px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.fc{padding:2px 7px;border-radius:20px;border:1px solid var(--border);font-size:9px;font-family:'IBM Plex Mono',monospace;cursor:pointer;color:var(--muted);background:transparent;transition:all .15s;}
+.fc:hover,.fc.on{border-color:currentColor;}
+.fg{width:100%;font-size:8px;font-family:'IBM Plex Mono',monospace;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:5px 0 2px;border-top:1px solid var(--border);margin-top:3px;opacity:.7;}
+.fg:first-child{border-top:none;margin-top:0;}
+
+/* Search */
+.sw{padding:6px 13px;border-bottom:1px solid var(--border);}
+.sw input{width:100%;padding:5px 8px 5px 26px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:10px;outline:none;transition:border-color .15s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238b949e' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.442 1.156a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:7px center;}
+.sw input:focus{border-color:var(--accent);}
+.sw input::placeholder{color:var(--muted);}
+
+/* Library */
+.lib{flex:1;overflow-y:auto;padding:5px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.lib::-webkit-scrollbar{width:3px;}
+.lib::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.li{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:5px;cursor:grab;border:1px solid transparent;transition:all .12s;margin-bottom:2px;user-select:none;}
+.li:hover{background:var(--surface2);border-color:var(--border);}
+.li:active{cursor:grabbing;opacity:.7;}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.li-info{flex:1;min-width:0;}
+.ln{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ls{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lb{font-size:9px;color:#0d1117;background:var(--accent);border-radius:10px;padding:1px 5px;font-family:'IBM Plex Mono',monospace;font-weight:600;flex-shrink:0;}
+.empty{padding:24px 13px;text-align:center;color:var(--muted);font-size:11px;line-height:1.7;}
+.sf{padding:7px 13px;border-top:1px solid var(--border);font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+
+/* CANVAS */
+.cw{flex:1;position:relative;overflow:hidden;background:#fff;}
+#vp{position:absolute;top:0;left:0;transform-origin:0 0;}
+#bgImg{display:none;pointer-events:none;user-select:none;max-width:none;}
+
+/* Placed items live inside #vp — they move with zoom/pan automatically */
+.pi{position:absolute;width:100px;padding:4px 6px;border-radius:5px;border:1.5px solid;cursor:grab;user-select:none;overflow:hidden;z-index:5;transition:box-shadow .15s;}
+.pi-n{display:block;font-size:7px;font-family:'IBM Plex Mono',monospace;font-weight:600;opacity:.65;line-height:1;margin-bottom:2px;}
+.pi-t{font-size:9.5px;font-weight:700;text-align:center;word-break:break-word;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.pi:hover{box-shadow:0 0 0 2px rgba(0,0,0,.2);z-index:10;}
+.pi:active{cursor:grabbing;}
+.pi.sel{box-shadow:0 0 0 3px rgba(88,166,255,.7)!important;z-index:20;}
+.pi.hl{box-shadow:0 0 0 3px #f0c040,0 0 12px rgba(240,192,64,.5)!important;z-index:15;}
+.pi.pin{box-shadow:0 0 0 3px #ff7b72,0 0 14px rgba(255,123,114,.6)!important;z-index:16;}
+
+/* Item panel */
+.ip{position:absolute;top:8px;right:8px;width:280px;max-height:calc(100% - 24px);background:rgba(13,17,23,.97);border:1.5px solid var(--accent);border-radius:9px;display:flex;flex-direction:column;z-index:100;backdrop-filter:blur(10px);transition:opacity .2s;box-shadow:0 8px 32px rgba(0,0,0,.6);}
+.ip.hid{opacity:0;pointer-events:none;}
+.iph{display:flex;align-items:center;gap:6px;padding:9px 11px;border-bottom:1px solid var(--border);flex-shrink:0;background:rgba(88,166,255,.07);border-radius:7px 7px 0 0;cursor:grab;user-select:none;}
+.iph:active{cursor:grabbing;}
+.iph-title{flex:1;font-size:12px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--accent);letter-spacing:.6px;cursor:grab;}
+.iph-title:active{cursor:grabbing;}
+.iph-cnt{font-size:10px;font-weight:700;color:#0d1117;font-family:'IBM Plex Mono',monospace;background:var(--accent);padding:1px 7px;border-radius:10px;}
+.iph button{padding:2px 7px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:9px;cursor:pointer;transition:all .1s;}
+.iph button:hover{color:var(--warn);border-color:var(--warn);}
+/* Panel filter chips */
+.ipf{padding:6px 7px 5px;border-bottom:1px solid var(--border);display:flex;gap:3px;flex-wrap:wrap;flex-shrink:0;}
+.ipfc{padding:2px 7px;border-radius:20px;border:1px solid var(--border);font-size:8px;font-family:'IBM Plex Mono',monospace;cursor:pointer;color:var(--muted);background:transparent;transition:all .1s;white-space:nowrap;}
+.ipfc:hover,.ipfc.on{border-color:currentColor;}
+.ipl{flex:1;overflow-y:auto;padding:4px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.ipl::-webkit-scrollbar{width:3px;}
+.ipl::-webkit-scrollbar-thumb{background:var(--border);}
+.ipi{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:4px;cursor:pointer;border:1px solid transparent;transition:all .1s;margin-bottom:2px;}
+.ipi:hover{background:var(--surface2);border-color:var(--border);}
+.ipi.pinned{background:rgba(255,123,114,.1);border-color:rgba(255,123,114,.4);}
+.ipnum{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--accent);width:28px;flex-shrink:0;text-align:right;}
+.ipdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ipinfo{flex:1;min-width:0;}
+.ipname{font-size:13px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.iptype{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:1px;}
+.ipmt{padding:20px 12px;text-align:center;font-size:11px;color:var(--muted);line-height:1.8;}
+
+/* CSV modal */
+.csv-md{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px;width:560px;max-width:96vw;}
+.csv-loaded-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid rgba(63,185,80,.3);border-radius:5px;background:rgba(63,185,80,.06);margin-bottom:5px;}
+.csv-loaded-icon{font-size:14px;flex-shrink:0;}
+.csv-loaded-name{flex:1;font-size:11px;font-weight:600;color:var(--text);font-family:'IBM Plex Mono',monospace;}
+.csv-loaded-count{font-size:10px;color:var(--muted);flex-shrink:0;}
+.csv-loaded-remove{padding:3px 9px;border-radius:4px;border:1px solid var(--warn);background:transparent;color:var(--warn);font-size:10px;cursor:pointer;flex-shrink:0;transition:all .12s;}
+.csv-loaded-remove:hover{background:var(--warn);color:#0d1117;}
+.csv-md h3{font-size:15px;font-weight:600;margin-bottom:4px;}
+.csv-md .csv-sub{font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.5;}
+.csv-section-label{font-size:8px;font-family:'IBM Plex Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.csv-note{font-size:10px;color:var(--accent2);background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.2);border-radius:5px;padding:7px 10px;margin-bottom:10px;line-height:1.5;}
+.csv-file-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .15s;margin-bottom:6px;background:var(--surface2);}
+.csv-file-row:hover{border-color:var(--accent);background:rgba(88,166,255,.06);}
+.csv-file-icon{font-size:20px;flex-shrink:0;}
+.csv-file-info{flex:1;min-width:0;}
+.csv-file-name{font-size:12px;font-weight:600;color:var(--text);font-family:'IBM Plex Mono',monospace;}
+.csv-file-desc{font-size:10px;color:var(--muted);margin-top:2px;}
+.csv-file-arrow{font-size:14px;color:var(--muted);}
+.csv-divider{display:flex;align-items:center;gap:10px;margin:14px 0 12px;}
+.csv-divider::before,.csv-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.csv-divider span{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+.csv-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.csv-act-btn{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .15s;background:var(--surface2);font-family:'IBM Plex Sans',sans-serif;}
+.csv-act-btn:hover{border-color:var(--accent);}
+.csv-act-btn .ca-icon{font-size:18px;}
+.csv-act-btn .ca-info{flex:1;text-align:left;}
+.csv-act-btn .ca-title{font-size:11px;font-weight:600;color:var(--text);display:block;}
+.csv-act-btn .ca-desc{font-size:9px;color:var(--muted);display:block;margin-top:1px;}
+
+/* Save / Load option cards */
+.sopts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.sopt{padding:14px 12px;border:1px solid var(--border);border-radius:7px;cursor:pointer;transition:all .15s;text-align:center;}
+.sopt:hover{border-color:var(--accent);background:rgba(88,166,255,.07);}
+.sopt-icon{font-size:26px;margin-bottom:7px;}
+.sopt-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px;}
+.sopt-desc{font-size:10px;color:var(--muted);line-height:1.5;}
+.sopt-warn{font-size:9px;color:var(--warn);margin-top:5px;}
+
+/* Drop hint */
+.dh{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;transition:opacity .3s;}
+.dh.hid{opacity:0;}
+.dhi{font-size:38px;opacity:.2;margin-bottom:8px;}
+.dht{font-size:12px;color:#aaa;opacity:.55;}
+
+/* Toolbar */
+.ct{position:absolute;bottom:13px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px;z-index:50;}
+.tb{padding:4px 10px;border-radius:4px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:10px;font-family:'IBM Plex Mono',monospace;cursor:pointer;transition:all .15s;}
+.tb:hover{background:var(--surface2);color:var(--text);border-color:var(--border);}
+.tb.on{background:var(--surface2);color:var(--accent);border-color:var(--accent);}
+.tsp{width:1px;background:var(--border);margin:2px 1px;}
+
+/* Status */
+.stb{position:absolute;top:8px;right:8px;display:flex;gap:5px;z-index:50;}
+.sp{padding:3px 8px;background:rgba(22,27,34,.88);border:1px solid var(--border);border-radius:20px;font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--muted);backdrop-filter:blur(6px);}
+
+/* TOOLTIP */
+#tt{position:fixed;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-width:170px;max-width:250px;pointer-events:none;opacity:0;transition:opacity .15s;box-shadow:0 8px 24px rgba(0,0,0,.55);}
+#tt.on{opacity:1;}
+.ttn{font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.ttr{display:flex;gap:6px;align-items:baseline;margin-bottom:3px;}
+.ttk{font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--muted);width:68px;flex-shrink:0;}
+.ttv{font-size:10px;color:var(--text);word-break:break-all;}
+.ttbg{display:inline-block;padding:1px 7px;border-radius:20px;font-size:9px;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#0d1117;margin-top:5px;}
+
+/* TOAST */
+#toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 16px;font-size:11px;color:var(--text);z-index:9999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:2000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.mo.on{opacity:1;pointer-events:all;}
+.md{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;width:330px;max-width:90vw;}
+.md h3{font-size:13px;margin-bottom:6px;}
+.md p{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:13px;}
+.mdb{display:flex;gap:6px;justify-content:flex-end;}
+.mdb button{padding:6px 14px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:11px;cursor:pointer;}
+.mdb .cf{background:var(--warn);border-color:var(--warn);color:#0d1117;font-weight:600;}
+/* Guide modal */
+.gmd{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;width:520px;max-width:94vw;max-height:88vh;display:flex;flex-direction:column;}
+.gmd h2{font-size:16px;font-weight:600;margin-bottom:4px;}
+.gmd .gsub{font-size:11px;color:var(--muted);margin-bottom:16px;}
+.gscroll{flex:1;overflow-y:auto;padding-right:6px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.gs{margin-bottom:18px;}
+.gsh{font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.gi{display:flex;gap:10px;align-items:flex-start;margin-bottom:9px;}
+.gn{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#0d1117;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.gt{font-size:12px;color:var(--text);line-height:1.6;}
+.gt b{color:var(--accent2);}
+.gt em{color:var(--warn);font-style:normal;}
+
+input[type="file"]{display:none;}
+</style>
+</head>
+<body>
+
+<input type="file" id="bgUpload" accept="image/*">
+<input type="file" id="csvUpload" accept=".csv">
+<input type="file" id="stateUpload" accept=".json">
+<input type="file" id="txtUpload" accept=".txt">
+
+<header>
+  <span class="logo">FloorPlan</span>
+  <div class="hs"></div>
+  <span class="ht">PLDT DC Equipment Mapper</span>
+  <div class="hsp"></div>
+  <button class="hb" onclick="showGuide()" title="Opens a step-by-step guide on how to use this app. Great if you're just starting out!">❓ How to Use</button>
+  <div class="hs"></div>
+  <button class="hb" onclick="document.getElementById('bgUpload').click()" title="Load your building or room map as a background image. Example: select 'datacenter_floor.png' from your computer.">🗺️ Upload Floor Map</button>
+  <div class="hs"></div>
+  <button class="hb g" onclick="saveState()" title="Save everything — your map, equipment list, and all placed items. Choose to save in browser (quick) or to a file on your computer.">💾 Save My Work</button>
+  <button class="hb" onclick="loadWork()" title="Open a previously saved work file, or restore from your last browser save.">📂 Load Saved Work</button>
+  <div class="hs"></div>
+  <button class="hb" onclick="exportJSON()" title="Download the list of all placed equipment with their positions as a JSON file. Useful for sharing data with other systems.">📄 Export JSON</button>
+  <button class="hb p" onclick="exportImage()" title="Save a screenshot of the current map as a PNG image. Great for printing or sharing via email.">📸 Save as Picture</button>
+  <button class="hb r" onclick="showClearModal()" title="Remove all equipment from the map canvas. Your equipment list on the left will be kept. This cannot be undone.">🗑 Remove All</button>
+</header>
+
+<!-- SUMMARY BAR -->
+<div id="summaryBar">
+  <div class="sb-sec" title="Total number of equipment items placed on the map">
+    <span class="sb-total-label">On Map</span>
+    <span class="sb-total-num" id="sbTotalNum">0</span>
+  </div>
+  <div class="sb-chips" id="sbChips">
+    <span style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace">No items placed yet — drag from the left panel</span>
+  </div>
+  <button class="sb-toggle" id="sbToggleBtn" onclick="togglePanel()" title="Show or hide the Item List — see all placed equipment numbered, click any to jump to it on the map">📋 Item List</button>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="ss" style="padding:9px 13px;">
+      <button class="upb" onclick="showCsvModal()" style="border-style:solid;border-color:var(--accent);color:var(--accent);font-weight:600;font-size:11px;padding:8px;">
+        📂 Load Equipment List
+      </button>
+    </div>
+    <div class="ss">
+      <div class="sst">Add Equipment Manually</div>
+      <div class="mg">
+        <input type="text" id="mName" placeholder="Equipment name *" class="mfc" onkeydown="if(event.key==='Enter')addManual()">
+        <select id="mType">
+          <option value="other">other</option>
+          <option value="energy_meter">energy meter</option>
+          <option value="hvac">hvac</option>
+          <option value="battery">battery</option>
+          <option value="io">i/o</option>
+          <option value="dc_plant">dc plant</option>
+          <option value="ups">ups</option>
+          <option value="pdu">pdu</option>
+          <option value="server">server</option>
+          <option value="network">network</option>
+        </select>
+        <input type="text" id="mMake" placeholder="Make">
+        <input type="text" id="mModel" placeholder="Model">
+        <input type="text" id="mCode" placeholder="HW Code" class="mfc">
+        <input type="text" id="mConfig" placeholder="Config" class="mfc">
+      </div>
+      <div class="ar"><button onclick="addManual()">＋ Add to Library</button></div>
+    </div>
+
+    <div class="fb" id="filterBar"></div>
+    <div class="sw"><input type="text" id="searchBox" placeholder="Search equipment…" oninput="renderLib()"></div>
+    <div class="lib" id="library"><div class="empty">Upload a CSV or add items manually.</div></div>
+    <div class="sf">DRAG → canvas &nbsp;|&nbsp; DBL-CLICK → remove &nbsp;|&nbsp; HOVER → details</div>
+  </aside>
+
+  <div class="cw" id="cw"
+       ondragover="canvasDragOver(event)"
+       ondrop="canvasDrop(event)">
+    <div id="vp">
+      <img id="bgImg" src="" alt="">
+    </div>
+    <div class="dh" id="dh">
+      <div class="dhi">🏗</div>
+      <div class="dht">Load a floor plan, then drag equipment here</div>
+    </div>
+    <div class="stb">
+      <div class="sp" id="cntPill">0 items</div>
+      <div class="sp" id="zPill">100%</div>
+    </div>
+
+    <!-- Item List Panel -->
+    <div class="ip" id="itemPanel">
+      <div class="iph" id="ipHeader">
+        <span class="iph-title" title="Drag this bar to move the panel">📋 PLACED ITEMS ⠿</span>
+        <span class="iph-cnt" id="ipCount">0</span>
+        <button onclick="togglePanel()" title="Hide this panel">✕</button>
+      </div>
+      <div class="ipf" id="ipFilter"><!-- filter chips rendered by JS --></div>
+      <div class="ipl" id="ipList">
+        <div class="ipmt">No items placed yet.<br>Drag equipment onto the map.</div>
+      </div>
+    </div>
+    <div class="ct">
+      <button class="tb" onclick="resetView()" title="Fit the whole map back into view. Use this if you've zoomed in too far and lost your place.">⊙ Fit</button>
+      <div class="tsp"></div>
+      <button class="tb" onclick="zStep(.15)" title="Zoom in — makes everything bigger and easier to see.">＋</button>
+      <button class="tb" onclick="zStep(-.15)" title="Zoom out — shrinks the view so you can see more of the map.">－</button>
+      <div class="tsp"></div>
+      <button class="tb" id="snapBtn" onclick="toggleSnap()" title="Snap to Grid — when ON, items you place will automatically line up neatly. Useful for keeping the map tidy.">⊞ Snap</button>
+      <button class="tb" id="panBtn"  onclick="togglePan()" title="Pan mode — when ON, click and drag the map to move around it. Click again to turn off and go back to placing items.">✋ Pan</button>
+      <button class="tb" id="wheelZoomBtn" onclick="toggleWheelZoom()" title="Scroll Zoom — when OFF (default), the mouse scroll wheel will NOT zoom the map. Click to enable scroll-wheel zooming.">🖱 Scroll</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="guideModal" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="gmd">
+    <h2>📖 How to Use This App</h2>
+    <p class="gsub">A simple step-by-step guide — read at your own pace</p>
+    <div class="gscroll">
+
+      <div class="gs">
+        <div class="gsh">Step 1 — Load Your Equipment List</div>
+        <div class="gi"><div class="gn">1</div><div class="gt">Click <b>"Load Equipment List"</b> at the top of the screen. Find and select the <b>CSV file</b> that contains your equipment. The list will appear on the left side of the screen automatically.</div></div>
+        <div class="gi"><div class="gn">2</div><div class="gt">If you don't have a CSV file, you can <b>type equipment in manually</b> using the form on the left. Fill in the name, choose a type, and click <b>"+ Add to Library"</b>.</div></div>
+      </div>
+
+      <div class="gs">
+        <div class="gsh">Step 2 — Place Equipment on the Map</div>
+        <div class="gi"><div class="gn">3</div><div class="gt"><b>Click and hold</b> any equipment name from the left list, then <b>drag it onto the map</b> and let go where you want it placed.</div></div>
+        <div class="gi"><div class="gn">4</div><div class="gt">You can also <b>just click</b> an equipment name — it will appear in the middle of the map. You can move it from there.</div></div>
+        <div class="gi"><div class="gn">5</div><div class="gt">To <b>move</b> something already on the map, click and drag it to a new position.</div></div>
+        <div class="gi"><div class="gn">6</div><div class="gt">To <b>remove</b> something from the map, <em>double-click</em> on it (click it twice quickly). It will disappear.</div></div>
+      </div>
+
+      <div class="gs">
+        <div class="gsh">Step 3 — Navigate the Map</div>
+        <div class="gi"><div class="gn">7</div><div class="gt">Use the <b>scroll wheel</b> on your mouse to zoom in and out. You can also use the <b>＋ and －</b> buttons at the bottom.</div></div>
+        <div class="gi"><div class="gn">8</div><div class="gt">Click the <b>"✋ Pan"</b> button at the bottom to switch into "move map" mode. Then click and drag the map to move around. Click Pan again to go back to normal.</div></div>
+        <div class="gi"><div class="gn">9</div><div class="gt">Click <b>"⊙ Fit"</b> to reset the view and show the whole map on screen.</div></div>
+      </div>
+
+      <div class="gs">
+        <div class="gsh">Step 4 — Save &amp; Share Your Work</div>
+        <div class="gi"><div class="gn">10</div><div class="gt">Click <b>"💾 Save My Work"</b> to download a save file to your computer. You can reload this later with <b>"📂 Open Saved Work"</b> — nothing will be lost.</div></div>
+        <div class="gi"><div class="gn">11</div><div class="gt">Click <b>"📸 Save as Picture"</b> to download a photo of the current map — great for sharing with others via email or printing.</div></div>
+        <div class="gi"><div class="gn">12</div><div class="gt">Click <b>"📄 Export List"</b> to download a file listing all placed equipment with their positions.</div></div>
+      </div>
+
+      <div class="gs">
+        <div class="gsh">Tips</div>
+        <div class="gi"><div class="gn">★</div><div class="gt">Your work is <b>automatically saved</b> in the browser as you go. If you close and reopen the page, everything should still be there.</div></div>
+        <div class="gi"><div class="gn">★</div><div class="gt">Use the <b>filter buttons</b> on the left to show only certain types of equipment (e.g. only HVAC, only Batteries).</div></div>
+        <div class="gi"><div class="gn">★</div><div class="gt">Use <b>"⊞ Snap"</b> to make items automatically line up on a grid — useful for keeping things neat.</div></div>
+        <div class="gi"><div class="gn">★</div><div class="gt">Hover your mouse over any item on the map to see its full details in a pop-up.</div></div>
+      </div>
+
+    </div>
+    <div class="mdb" style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
+      <button onclick="document.getElementById('guideModal').classList.remove('on')" style="font-size:12px;padding:7px 20px;">Got it, close this</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="csvModal" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="csv-md">
+    <h3>📂 Load Equipment List</h3>
+    <p class="csv-sub">PLDT site files are pre-loaded automatically. You can remove them here or upload your own file.</p>
+
+    <div id="loadedBuiltinsSection" style="display:none;margin-bottom:14px;">
+      <div class="csv-section-label" style="margin-bottom:6px;">CURRENTLY LOADED — click Remove to unload</div>
+      <div id="loadedBuiltinsList"></div>
+    </div>
+
+    <div class="csv-section-label">PLDT Site Files — already on this computer</div>
+    <div class="csv-note">💡 These are existing PLDT site equipment lists. Click one to load it directly — no need to find a file.</div>
+
+    <div class="csv-file-row" onclick="loadBuiltinCSV('10.9.7.240.csv','Site 10.9.7.240')">
+      <span class="csv-file-icon">🏢</span>
+      <span class="csv-file-info">
+        <div class="csv-file-name">10.9.7.240.csv</div>
+        <div class="csv-file-desc">PLDT site equipment list — click to load directly</div>
+      </span>
+      <span class="csv-file-arrow">→</span>
+    </div>
+    <div class="csv-file-row" onclick="loadBuiltinCSV('10.9.8.96.csv','Site 10.9.8.96')">
+      <span class="csv-file-icon">🏢</span>
+      <span class="csv-file-info">
+        <div class="csv-file-name">10.9.8.96.csv</div>
+        <div class="csv-file-desc">PLDT site equipment list — click to load directly</div>
+      </span>
+      <span class="csv-file-arrow">→</span>
+    </div>
+
+    <div class="csv-divider"><span>or</span></div>
+
+    <div class="csv-actions" style="grid-template-columns:1fr 1fr 1fr;">
+      <button class="csv-act-btn" onclick="document.getElementById('csvModal').classList.remove('on');document.getElementById('csvUpload').click()">
+        <span class="ca-icon">📁</span>
+        <span class="ca-info">
+          <span class="ca-title">Upload My Own CSV</span>
+          <span class="ca-desc">Pick any CSV file from your computer to load your own equipment list</span>
+        </span>
+      </button>
+      <button class="csv-act-btn" onclick="document.getElementById('csvModal').classList.remove('on');document.getElementById('txtUpload').click()">
+        <span class="ca-icon">📝</span>
+        <span class="ca-info">
+          <span class="ca-title">Upload AxIn Text List</span>
+          <span class="ca-desc">Pick a .txt file — one equipment name per line. All items load as AxIn (manually added)</span>
+        </span>
+      </button>
+      <button class="csv-act-btn" onclick="document.getElementById('csvModal').classList.remove('on');downloadCSVTemplate()">
+        <span class="ca-icon">📥</span>
+        <span class="ca-info">
+          <span class="ca-title">Download Blank Template</span>
+          <span class="ca-desc">Get a blank CSV with the correct column layout — open in Excel and fill it in</span>
+        </span>
+      </button>
+    </div>
+
+    <div class="mdb" style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
+      <button onclick="document.getElementById('csvModal').classList.remove('on')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="saveModal" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="md" style="width:420px;max-width:95vw;">
+    <h3 style="font-size:15px;margin-bottom:4px;">💾 Save My Work</h3>
+    <p>Choose how to save. Both options keep your map, equipment list, and all placed items.</p>
+    <div class="sopts">
+      <div class="sopt" onclick="saveToBrowser()">
+        <div class="sopt-icon">🌐</div>
+        <div class="sopt-title">Save in Browser</div>
+        <div class="sopt-desc">Quick save — no file needed. Works only on this computer and this browser.</div>
+        <div class="sopt-warn">⚠ Lost if you clear browser history or switch browsers.</div>
+      </div>
+      <div class="sopt" onclick="saveToFile()">
+        <div class="sopt-icon">💽</div>
+        <div class="sopt-title">Save to File</div>
+        <div class="sopt-desc">Downloads a file to your computer. You can share it with others or reload it after restarting your PC.</div>
+      </div>
+    </div>
+    <div class="mdb"><button onclick="document.getElementById('saveModal').classList.remove('on')">Cancel</button></div>
+  </div>
+</div>
+
+<div class="mo" id="loadModal" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="md" style="width:420px;max-width:95vw;">
+    <h3 style="font-size:15px;margin-bottom:4px;">📂 Load Saved Work</h3>
+    <p>Where would you like to load from?</p>
+    <div class="sopts">
+      <div class="sopt" id="loadBrowserOpt" onclick="loadFromBrowser()">
+        <div class="sopt-icon">🌐</div>
+        <div class="sopt-title">Load from Browser</div>
+        <div class="sopt-desc">Restore your last "Save in Browser" session on this computer.</div>
+      </div>
+      <div class="sopt" onclick="loadFromFile()">
+        <div class="sopt-icon">💽</div>
+        <div class="sopt-title">Load from File</div>
+        <div class="sopt-desc">Pick a saved file (.json) from your computer to load your work.</div>
+      </div>
+    </div>
+    <div class="mdb"><button onclick="document.getElementById('loadModal').classList.remove('on')">Cancel</button></div>
+  </div>
+</div>
+
+<div class="mo" id="clearModal">
+  <div class="md">
+    <h3>Clear all placed items?</h3>
+    <p>Removes all equipment from the canvas. Library and background image are kept.</p>
+    <div class="mdb">
+      <button onclick="document.getElementById('clearModal').classList.remove('on')">Cancel</button>
+      <button class="cf" onclick="clearAll()">Clear All</button>
+    </div>
+  </div>
+</div>
+
+<div id="tt"><div class="ttn" id="ttN"></div><div id="ttB"></div></div>
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+const S = {
+  lib:[], placed:[],
+  zoom:1, px:0, py:0,
+  snap:false, snapG:20,
+  pan:false,
+  srcFilter:null,
+  nid:1, placeCount:0,
+  bgW:0, bgH:0,
+};
+let pinnedId=null, panelFilter=null;
+let loadedBuiltins={}; // {filename: itemCount}
+let wheelZoomLocked=true; // scroll wheel zoom OFF by default
+let wheelToastAt=0; // throttle scroll-locked toast
+let panelDrag=null; // for dragging item panel
+
+// ════════════════════════════════════════
+// COLOURS
+// ════════════════════════════════════════
+const COL = {
+  energy_meter:{bg:'rgba(88,166,255,.22)',  bd:'#58a6ff',tx:'#1a4a9e',dot:'#58a6ff'},
+  hvac:        {bg:'rgba(63,185,80,.22)',   bd:'#3fb950',tx:'#145220',dot:'#3fb950'},
+  battery:     {bg:'rgba(210,168,255,.22)', bd:'#d2a8ff',tx:'#5b21b6',dot:'#d2a8ff'},
+  io:          {bg:'rgba(255,166,87,.22)',  bd:'#ffa657',tx:'#92400e',dot:'#ffa657'},
+  dc_plant:    {bg:'rgba(255,123,114,.22)', bd:'#ff7b72',tx:'#991b1b',dot:'#ff7b72'},
+  ups:         {bg:'rgba(121,192,255,.22)', bd:'#79c0ff',tx:'#0e4c7a',dot:'#79c0ff'},
+  pdu:         {bg:'rgba(86,211,100,.22)',  bd:'#56d364',tx:'#0d4a1c',dot:'#56d364'},
+  server:      {bg:'rgba(240,136,62,.22)',  bd:'#f0883e',tx:'#7c2d12',dot:'#f0883e'},
+  network:     {bg:'rgba(82,174,255,.22)',  bd:'#52aeff',tx:'#0e3f7a',dot:'#52aeff'},
+  other:       {bg:'rgba(139,148,158,.22)', bd:'#8b949e',tx:'#1f2937',dot:'#8b949e'},
+};
+const C = t => COL[t]||COL.other;
+
+// ════════════════════════════════════════
+// CSV PARSER
+// ════════════════════════════════════════
+function parseCSV(txt) {
+  const rows=[];
+  for(const line of txt.split(/\r?\n/)){
+    if(!line.trim()) continue;
+    const cols=[];let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(ch==='"'){inQ=!inQ;}
+      else if(ch===','&&!inQ){cols.push(cur.trim());cur='';}
+      else{cur+=ch;}
+    }
+    cols.push(cur.trim()); rows.push(cols);
+  }
+  return rows;
+}
+
+// ════════════════════════════════════════
+// FILE INPUTS
+// ════════════════════════════════════════
+document.getElementById('bgUpload').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const img=document.getElementById('bgImg');
+    img.onload=()=>{
+      S.bgW=img.naturalWidth; S.bgH=img.naturalHeight;
+      img.style.display='block';
+      img.style.width=S.bgW+'px'; img.style.height=S.bgH+'px';
+      fitView(); updStatus();
+      document.getElementById('dh').classList.add('hid');
+      toast('Floor plan loaded ✓');
+    };
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(f); e.target.value='';
+});
+
+function ingestCSVText(text, builtinFile){
+  const rows=parseCSV(text);
+  if(!rows.length) return 0;
+  const h=rows[0].map(v=>v.toLowerCase());
+  const ix=k=>h.indexOf(k);
+  const iA=ix('alias'),iT=ix('hardware_type'),iMk=ix('hw_make'),
+        iMo=ix('hw_model'),iC=ix('hw_code'),iP=ix('processor_id'),iCf=ix('configuration');
+  if(iA===-1){toast('⚠ No "alias" column found');return -1;}
+  let n=0;
+  for(let i=1;i<rows.length;i++){
+    const row=rows[i];
+    const name=(row[iA]||'').trim();
+    if(!name||name==='---') continue;
+    if(S.lib.find(l=>l.name===name)) continue;
+    S.lib.push({
+      id:S.nid++,name,
+      type:iT!==-1?(row[iT]||'other'):'other',
+      make:iMk!==-1?(row[iMk]||''):'',
+      model:iMo!==-1?(row[iMo]||''):'',
+      hw_code:iC!==-1?(row[iC]||''):'',
+      processor_id:iP!==-1?(row[iP]||''):'',
+      config:iCf!==-1?(row[iCf]||''):'',
+      source:'aque',
+      builtinFile:builtinFile||null,
+    });
+    n++;
+  }
+  return n;
+}
+
+document.getElementById('csvUpload').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const n=ingestCSVText(ev.target.result);
+    if(n>=0){toast(`${n} items loaded ✓`);rebuildFilters();renderLib();}
+  };
+  r.readAsText(f); e.target.value='';
+});
+
+function showCsvModal(){
+  // Render the "currently loaded" remove section
+  const loaded=Object.keys(loadedBuiltins);
+  const sec=document.getElementById('loadedBuiltinsSection');
+  const list=document.getElementById('loadedBuiltinsList');
+  if(loaded.length>0){
+    sec.style.display='block';
+    list.innerHTML=loaded.map(fn=>`
+      <div class="csv-loaded-row">
+        <span class="csv-loaded-icon">✅</span>
+        <span class="csv-loaded-name">${fn}</span>
+        <span class="csv-loaded-count">${loadedBuiltins[fn]} items</span>
+        <button class="csv-loaded-remove" onclick="removeBuiltin('${fn}')">✕ Remove</button>
+      </div>`).join('');
+  } else {
+    sec.style.display='none';
+  }
+  document.getElementById('csvModal').classList.add('on');
+}
+
+function removeBuiltin(filename){
+  const before=S.lib.length;
+  S.lib=S.lib.filter(l=>l.builtinFile!==filename);
+  delete loadedBuiltins[filename];
+  const removed=before-S.lib.length;
+  document.getElementById('csvModal').classList.remove('on');
+  toast(`Removed ${removed} items from ${filename}`);
+  rebuildFilters(); renderLib(); renderPanel(); renderSummary();
+}
+
+// ── Embedded PLDT site CSVs (avoids fetch() failing on file:// protocol) ──
+const BUILTIN_CSVS = {
+'10.9.7.240.csv':`alias,hardware_type,processor_id,configuration,hw_code,hw_make,hw_model
+PACU M-324 ACU,energy_meter,0000000078a332bc,accu_rev_1310,energy_meter-501--0000000078a332bc,Acrel,ADL400(3-Phase EM)
+PACU M-325 ACU,energy_meter,0000000078a332bc,accu_rev_1310,energy_meter-502--0000000078a332bc,Acrel,ADL400(3-Phase EM)
+PACU M-326 ACU,energy_meter,0000000078a332bc,accu_rev_1310,energy_meter-503--0000000078a332bc,Acrel,ADL400(3-Phase EM)
+PACU M-327 ACU,energy_meter,0000000078a332bc,accu_rev_1310,energy_meter-504--0000000078a332bc,Acrel,ADL400(3-Phase EM)
+Elevator EM 5th Floor,energy_meter,0000000078a332bc,accu_rev_1310,energy_meter-505--0000000078a332bc,Acrel,ADL400(3-Phase EM)
+COOLING TOWER ROOFTOP,energy_meter,0000000078a332bc,meter_schneider,energy_meter-506--0000000078a332bc,Schneider,PM2100(3-Phase EM)
+LRC Rectifier Sys A,dc_plant,0000000078a332bc,huawei_snmp,dc_plant-507--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys A Battery-1,battery,0000000078a332bc,huawei_snmp,battery-508--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B,dc_plant,0000000078a332bc,huawei_snmp,dc_plant-509--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-1,battery,0000000078a332bc,huawei_snmp,battery-510--0000000078a332bc,Huawei,SMU02B
+Battery-1,battery,0000000078a332bc,lion_battery,battery-511--0000000078a332bc,ENCAP,
+Battery-2,battery,0000000078a332bc,lion_battery,battery-512--0000000078a332bc,ENCAP,
+Battery-3,battery,0000000078a332bc,lion_battery,battery-513--0000000078a332bc,ENCAP,
+Battery-4,battery,0000000078a332bc,lion_battery,battery-514--0000000078a332bc,ENCAP,
+Battery-5,battery,0000000078a332bc,lion_battery,battery-515--0000000078a332bc,ENCAP,
+Battery-6,battery,0000000078a332bc,lion_battery,battery-516--0000000078a332bc,ENCAP,
+Battery-7,battery,0000000078a332bc,lion_battery,battery-517--0000000078a332bc,ENCAP,
+Battery-8,battery,0000000078a332bc,lion_battery,battery-518--0000000078a332bc,ENCAP,
+Battery-9,battery,0000000078a332bc,lion_battery,battery-519--0000000078a332bc,ENCAP,
+Battery-10,battery,0000000078a332bc,lion_battery,battery-520--0000000078a332bc,ENCAP,
+Battery-11,battery,0000000078a332bc,lion_battery,battery-521--0000000078a332bc,ENCAP,
+Battery-12,battery,0000000078a332bc,lion_battery,battery-522--0000000078a332bc,ENCAP,
+Battery-13,battery,0000000078a332bc,lion_battery,battery-523--0000000078a332bc,ENCAP,
+Battery-14,battery,0000000078a332bc,lion_battery,battery-524--0000000078a332bc,ENCAP,
+Battery-15,battery,0000000078a332bc,lion_battery,battery-525--0000000078a332bc,ENCAP,
+Battery-16,battery,0000000078a332bc,lion_battery,battery-526--0000000078a332bc,ENCAP,
+Battery-17,battery,0000000078a332bc,lion_battery,battery-527--0000000078a332bc,ENCAP,
+Battery-18,battery,0000000078a332bc,lion_battery,battery-528--0000000078a332bc,ENCAP,
+Battery-19,battery,0000000078a332bc,lion_battery,battery-529--0000000078a332bc,ENCAP,
+Battery-20,battery,0000000078a332bc,lion_battery,battery-530--0000000078a332bc,ENCAP,
+Battery-21,battery,0000000078a332bc,lion_battery,battery-531--0000000078a332bc,ENCAP,
+Battery-22,battery,0000000078a332bc,lion_battery,battery-532--0000000078a332bc,ENCAP,
+Battery-23,battery,0000000078a332bc,lion_battery,battery-533--0000000078a332bc,ENCAP,
+Battery-24,battery,0000000078a332bc,lion_battery,battery-534--0000000078a332bc,ENCAP,
+Battery-25,battery,0000000078a332bc,lion_battery,battery-535--0000000078a332bc,ENCAP,
+Battery-26,battery,0000000078a332bc,lion_battery,battery-536--0000000078a332bc,ENCAP,
+Battery-27,battery,0000000078a332bc,lion_battery,battery-537--0000000078a332bc,ENCAP,
+Battery-28,battery,0000000078a332bc,lion_battery,battery-538--0000000078a332bc,ENCAP,
+Battery-29,battery,0000000078a332bc,lion_battery,battery-539--0000000078a332bc,ENCAP,
+Battery-30,battery,0000000078a332bc,lion_battery,battery-540--0000000078a332bc,ENCAP,
+NFVI Expander Rack-5,env_sensor,0000000078a332bc,temco_environement,env_sensor-541--0000000078a332bc,,
+Environmental,io,0000000078a332bc,temco_controller_io,io-542--0000000078a332bc,PLC,RMC1216
+Battery-1 Passive,bms,0000000078a332bc,passive,bms-543--0000000078a332bc,,
+Battery-2 Passive,bms,0000000078a332bc,passive,bms-544--0000000078a332bc,,
+Battery-3 Passive,bms,0000000078a332bc,passive,bms-545--0000000078a332bc,,
+Battery-4 Passive,bms,0000000078a332bc,passive,bms-546--0000000078a332bc,,
+Battery-5 Passive,bms,0000000078a332bc,passive,bms-547--0000000078a332bc,,
+Battery-6 Passive,bms,0000000078a332bc,passive,bms-548--0000000078a332bc,,
+Battery-7 Passive,bms,0000000078a332bc,passive,bms-549--0000000078a332bc,,
+Battery-8 Passive,bms,0000000078a332bc,passive,bms-550--0000000078a332bc,,
+Battery-9 Passive,bms,0000000078a332bc,passive,bms-551--0000000078a332bc,,
+Battery-10 Passive,bms,0000000078a332bc,passive,bms-552--0000000078a332bc,,
+Battery-11 Passive,bms,0000000078a332bc,passive,bms-553--0000000078a332bc,,
+Battery-12 Passive,bms,0000000078a332bc,passive,bms-554--0000000078a332bc,,
+Battery-13 Passive,bms,0000000078a332bc,passive,bms-555--0000000078a332bc,,
+Battery-14 Passive,bms,0000000078a332bc,passive,bms-556--0000000078a332bc,,
+Battery-15 Passive,bms,0000000078a332bc,passive,bms-557--0000000078a332bc,,
+Battery-16 Passive,bms,0000000078a332bc,passive,bms-558--0000000078a332bc,,
+Battery-17 Passive,bms,0000000078a332bc,passive,bms-559--0000000078a332bc,,
+Battery-18 Passive,bms,0000000078a332bc,passive,bms-560--0000000078a332bc,,
+Battery-19 Passive,bms,0000000078a332bc,passive,bms-561--0000000078a332bc,,
+Battery-20 Passive,bms,0000000078a332bc,passive,bms-562--0000000078a332bc,,
+Battery-21 Passive,bms,0000000078a332bc,passive,bms-563--0000000078a332bc,,
+Battery-22 Passive,bms,0000000078a332bc,passive,bms-564--0000000078a332bc,,
+Battery-23 Passive,bms,0000000078a332bc,passive,bms-565--0000000078a332bc,,
+Battery-24 Passive,bms,0000000078a332bc,passive,bms-566--0000000078a332bc,,
+Battery-25 Passive,bms,0000000078a332bc,passive,bms-567--0000000078a332bc,,
+Battery-26 Passive,bms,0000000078a332bc,passive,bms-568--0000000078a332bc,,
+Battery-27 Passive,bms,0000000078a332bc,passive,bms-569--0000000078a332bc,,
+Battery-28 Passive,bms,0000000078a332bc,passive,bms-570--0000000078a332bc,,
+Battery-29 Passive,bms,0000000078a332bc,passive,bms-571--0000000078a332bc,,
+Battery-30 Passive,bms,0000000078a332bc,passive,bms-572--0000000078a332bc,,
+LRC Rectifier Sys A Battery Passive,bms,0000000078a332bc,passive,bms-573--0000000078a332bc,,
+LRC Rectifier Sys B Battery Passive,bms,0000000078a332bc,passive,bms-574--0000000078a332bc,,
+Environment,env,0000000078a332bc,passive,bms-575--0000000078a332bc,,
+NFVI Expander Rack-6,env_sensor,0000000078a332bc,temco_environement,env_sensor-576--0000000078a332bc,,
+NFVI Expander Rack-7,env_sensor,0000000078a332bc,temco_environement,env_sensor-577--0000000078a332bc,,
+NFVI Expander Rack-8,env_sensor,0000000078a332bc,temco_environement,env_sensor-578--0000000078a332bc,,
+NFVI Expander Rack-9,env_sensor,0000000078a332bc,temco_environement,env_sensor-579--0000000078a332bc,,
+LRC Rectifier Sys A Battery-2,battery,0000000078a332bc,huawei_snmp,battery-587--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys A Battery-3,battery,0000000078a332bc,huawei_snmp,battery-588--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys A Battery-4,battery,0000000078a332bc,huawei_snmp,battery-589--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys A Battery-5,battery,0000000078a332bc,huawei_snmp,battery-590--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys A Battery-6,battery,0000000078a332bc,huawei_snmp,battery-591--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys A Battery-7,battery,0000000078a332bc,huawei_snmp,battery-592--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys A Battery-8,battery,0000000078a332bc,huawei_snmp,battery-593--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-2,battery,0000000078a332bc,huawei_snmp,battery-594--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-3,battery,0000000078a332bc,huawei_snmp,battery-595--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-4,battery,0000000078a332bc,huawei_snmp,battery-596--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-5,battery,0000000078a332bc,huawei_snmp,battery-597--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-6,battery,0000000078a332bc,huawei_snmp,battery-598--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-7,battery,0000000078a332bc,huawei_snmp,battery-599--0000000078a332bc,Huawei,SMU02B
+LRC Rectifier Sys B Battery-8,battery,0000000078a332bc,huawei_snmp,battery-600--0000000078a332bc,Huawei,SMU02B
+Airflow Under Floor,env_sensor,0000000078a332bc,temco_environement,env_sensor-601--0000000078a332bc,,
+M-324 Supply Air - Air Flow,env_sensor,0000000078a332bc,temco_environement,env_sensor-602--0000000078a332bc,,
+M-324 Return Air -1 Air Flow,env_sensor,0000000078a332bc,temco_environement,env_sensor-603--0000000078a332bc,,
+M-324 Return Air - 2 Air Flow,env_sensor,0000000078a332bc,temco_environement,env_sensor-604--0000000078a332bc,,
+PACU M-324 ACU Temperatures,env_sensor,0000000078a332bc,temco_environement,env_sensor-609--0000000078a332bc,,
+NFVI Room Humidity,io,0000000078a332bc,humidity,io-610--0000000078a332bc,PLC,PLC101
+NFVI Room Temperature,io,0000000078a332bc,shelter_1_temperature,io-611--0000000078a332bc,PLC,PLC101`,
+'10.9.8.96.csv':`alias,hardware_type,processor_id,configuration,hw_code,hw_make,hw_model
+Grid Meter,energy_meter,000000000b6b132b,EM_FineCoEM_115,energy_meter-1--000000000b6b132b,EET,PMC-630
+Fresh Water Flow Meter,energy_meter,000000000b6b132b,accu_rev_1310,energy_meter-2--000000000b6b132b,Acrel,ADL400(3-Phase EM)
+Rectifier Room Humidity,io,000000000b6b132b,humidity,io-10--000000000b6b132b,PLC,PLC101
+Rectifier Room Temperature,io,000000000b6b132b,shelter_1_temperature,io-11--000000000b6b132b,PLC,IO Controller
+Environmental 1,io,000000000b6b132b,temco_controller_io,io-30--000000000b6b132b,PLC,RMC1216
+Water Pump EM,energy_meter,000000000b6b132b,meter_schneider,energy_meter-41--000000000b6b132b,Schneider,PM2100(3-Phase EM)
+Chiller Primary Pump EM,energy_meter,000000000b6b132b,meter_schneider,energy_meter-42--000000000b6b132b,Schneider,PM2100(3-Phase EM)
+Chiller Secondary Pump EM,energy_meter,000000000b6b132b,meter_schneider,energy_meter-43--000000000b6b132b,Schneider,PM2100(3-Phase EM)
+Sump Pump EM,energy_meter,000000000b6b132b,accu_rev_1310,energy_meter-44--000000000b6b132b,Acrel,ADL200-N(Single Phase)
+AcBel Rectifier Measurements,energy_meter,000000000b6b132b,finecoem115_even_parity,energy_meter-46--000000000b6b132b,ACREL,AMC16-DETT
+VRLA MidPoint,battery,000000000b6b132b,VRLA_Midpoint,battery-48--000000000b6b132b,PLC,IO Controller
+Chiller,hvac,000000000b6b132b,temco_controller_hvac,hvac-9--000000000b6b132b,SMARDT,
+GENSET 1 EM,energy_meter,000000000b6b132b,EM_FineCoEM_115,energy_meter-49--000000000b6b132b,FinCo,EM-115(Single Phase)
+GENSET 2 EM,energy_meter,000000000b6b132b,EM_FineCoEM_115,energy_meter-50--000000000b6b132b,FinCo,EM-115(Single Phase)
+AcBel Dry Contacts,io,000000000b6b132b,temco_controller_io,io-51--000000000b6b132b,PLC,RMC1216
+Controlled Lighting,energy_meter,000000000b6b132b,accu_rev_1310,energy_meter-52--000000000b6b132b,,`
+};
+
+function loadBuiltinCSV(filename,label){
+  document.getElementById('csvModal').classList.remove('on');
+  const text=BUILTIN_CSVS[filename];
+  if(!text){toast('⚠ File not found');return;}
+  const n=ingestCSVText(text,filename);
+  if(n>=0){
+    loadedBuiltins[filename]=(loadedBuiltins[filename]||0)+n;
+    toast(`${label}: ${n} items loaded ✓`);
+    rebuildFilters();renderLib();
+  }
+}
+
+// ── TXT ingestion — one item name per line → AxIn ──
+function ingestTXT(text){
+  const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  let n=0;
+  for(const name of lines){
+    if(S.lib.find(l=>l.name===name)) continue;
+    S.lib.push({id:S.nid++,name,type:'other',make:'',model:'',hw_code:'',processor_id:'',config:'',source:'axin'});
+    n++;
+  }
+  return n;
+}
+document.getElementById('txtUpload').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const n=ingestTXT(ev.target.result);
+    toast(`${n} AxIn items loaded ✓`);
+    rebuildFilters();renderLib();
+  };
+  r.readAsText(f);e.target.value='';
+});
+
+// ════════════════════════════════════════
+// MANUAL ADD
+// ════════════════════════════════════════
+function addManual(){
+  const name=document.getElementById('mName').value.trim();
+  if(!name){toast('Enter a name first');return;}
+  if(S.lib.find(l=>l.name===name)){toast('Already in library');return;}
+  S.lib.push({
+    id:S.nid++,name,
+    type:document.getElementById('mType').value,
+    make:document.getElementById('mMake').value.trim(),
+    model:document.getElementById('mModel').value.trim(),
+    hw_code:document.getElementById('mCode').value.trim(),
+    processor_id:'',
+    config:document.getElementById('mConfig').value.trim(),
+    source:'axin',
+  });
+  ['mName','mMake','mModel','mCode','mConfig'].forEach(id=>document.getElementById(id).value='');
+  rebuildFilters(); renderLib();
+  toast(`"${name}" added`);
+}
+
+// ════════════════════════════════════════
+// FILTERS
+// ════════════════════════════════════════
+function rebuildFilters(){
+  const bar=document.getElementById('filterBar');
+  const allOn=S.srcFilter===null;
+  const hasAque=S.lib.some(l=>l.source==='aque');
+  const hasAxin=S.lib.some(l=>l.source==='axin');
+  bar.innerHTML=`<button class="fc ${allOn?'on':''}" style="color:var(--text)" onclick="clearF()">All</button>`;
+  if(hasAque){
+    const on=S.srcFilter==='aque'?'on':'';
+    bar.innerHTML+=`<button class="fc ${on}" style="color:#79c0ff" onclick="togSrcF('aque')" title="Show only equipment imported from CSV">AqUe</button>`;
+  }
+  if(hasAxin){
+    const on=S.srcFilter==='axin'?'on':'';
+    bar.innerHTML+=`<button class="fc ${on}" style="color:#e3b341" onclick="togSrcF('axin')" title="Show only equipment added manually">AxIn</button>`;
+  }
+}
+function clearF(){S.srcFilter=null;rebuildFilters();renderLib();}
+function togSrcF(src){S.srcFilter=S.srcFilter===src?null:src;rebuildFilters();renderLib();}
+
+// ════════════════════════════════════════
+// LIBRARY
+// ════════════════════════════════════════
+function renderLib(){
+  const q=document.getElementById('searchBox').value.trim().toLowerCase();
+  let items=S.lib;
+  if(S.srcFilter) items=items.filter(i=>i.source===S.srcFilter);
+  if(q) items=items.filter(i=>
+    i.name.toLowerCase().includes(q)||(i.make||'').toLowerCase().includes(q)||(i.model||'').toLowerCase().includes(q));
+  const lib=document.getElementById('library');
+  if(!items.length){lib.innerHTML=`<div class="empty">${S.lib.length?'No matches.':'Upload a CSV or add items manually.'}</div>`;return;}
+  const cnts={};
+  S.placed.forEach(p=>{cnts[p.libId]=(cnts[p.libId]||0)+1;});
+  lib.innerHTML=items.map(it=>{
+    const c=C(it.type),cnt=cnts[it.id]||0;
+    const badge=cnt?`<span class="lb">${cnt}</span>`:'';
+    const sub=[it.make,it.model].filter(Boolean).join(' · ')||it.type.replace(/_/g,' ');
+    return `<div class="li" draggable="true" data-id="${it.id}"
+      ondragstart="libDS(event,${it.id})"
+      onclick="qPlace(${it.id})"
+      title="Click = center-place · Drag = position">
+      <span class="ld" style="background:${c.dot}"></span>
+      <span class="li-info"><div class="ln">${x(it.name)}</div><div class="ls">${x(sub)}</div></span>
+      ${badge}
+    </div>`;
+  }).join('');
+}
+const x=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// ════════════════════════════════════════
+// DRAG FROM LIB
+// ════════════════════════════════════════
+let dragLid=null;
+function libDS(e,id){dragLid=id;e.dataTransfer.effectAllowed='copy';e.dataTransfer.setData('text/plain',id);}
+function canvasDragOver(e){e.preventDefault();e.dataTransfer.dropEffect='copy';}
+function canvasDrop(e){
+  e.preventDefault();if(dragLid===null) return;
+  const vp=document.getElementById('vp');
+  const r=vp.getBoundingClientRect();
+  let px=(e.clientX-r.left)/S.zoom, py=(e.clientY-r.top)/S.zoom;
+  placeItem(dragLid,snap(px-45),snap(py-12));
+  dragLid=null;
+}
+function qPlace(id){
+  const cw=document.getElementById('cw');
+  const cx=((cw.clientWidth/2)-S.px)/S.zoom+(Math.random()-.5)*80;
+  const cy=((cw.clientHeight/2)-S.py)/S.zoom+(Math.random()-.5)*60;
+  placeItem(id,snap(cx-45),snap(cy-12));
+}
+function snap(v){return S.snap?Math.round(v/S.snapG)*S.snapG:v;}
+
+// ════════════════════════════════════════
+// PLACE / REMOVE
+// ════════════════════════════════════════
+function placeItem(libId,px,py){
+  const src=S.lib.find(l=>l.id===libId);if(!src) return;
+  const num=++S.placeCount;
+  const p={id:S.nid++,libId,name:src.name,type:src.type,make:src.make,model:src.model,
+           hw_code:src.hw_code,processor_id:src.processor_id,config:src.config,
+           source:src.source||'',x:px,y:py,num};
+  S.placed.push(p); mountEl(p); updStatus(); renderLib(); renderPanel();
+}
+
+function mountEl(item){
+  const vp=document.getElementById('vp');
+  const c=C(item.type);
+  const el=document.createElement('div');
+  el.className='pi'; el.id='pi-'+item.id;
+  el.innerHTML=`<span class="pi-n">#${item.num||'?'}</span><span class="pi-t">${x(item.name)}</span>`;
+  el.style.cssText=`left:${item.x}px;top:${item.y}px;background:${c.bg};border-color:${c.bd};color:${c.tx};`;
+
+  // tooltip
+  el.addEventListener('mouseenter',ev=>showTT(ev,item));
+  el.addEventListener('mousemove', ev=>moveTT(ev));
+  el.addEventListener('mouseleave',hideTT);
+
+  // drag to move
+  let ox=0,oy=0,hasMoved=false;
+  el.addEventListener('mousedown',e=>{
+    if(e.button!==0||S.pan) return;
+    e.stopPropagation(); hideTT();
+    const er=el.getBoundingClientRect();
+    ox=e.clientX-er.left; oy=e.clientY-er.top;
+    hasMoved=false;
+    el.classList.add('sel'); el.style.zIndex=50;
+    const onMv=ev=>{
+      hasMoved=true;
+      const vr=vp.getBoundingClientRect();
+      // vp is scaled; getBoundingClientRect() returns scaled coords
+      // we need unscaled position: divide by zoom
+      const nx=snap((ev.clientX-vr.left-ox*(S.zoom/S.zoom))/S.zoom*S.zoom/S.zoom);
+      // Simpler: position in vp-local unscaled coords
+      const ux=(ev.clientX-vr.left)/S.zoom - ox/S.zoom;
+      const uy=(ev.clientY-vr.top )/S.zoom - oy/S.zoom;
+      item.x=snap(ux); item.y=snap(uy);
+      el.style.left=item.x+'px'; el.style.top=item.y+'px';
+    };
+    const onUp=()=>{
+      el.classList.remove('sel'); el.style.zIndex=5;
+      document.removeEventListener('mousemove',onMv);
+      document.removeEventListener('mouseup',onUp);
+    };
+    document.addEventListener('mousemove',onMv);
+    document.addEventListener('mouseup',onUp);
+  });
+
+  // double-click remove
+  el.addEventListener('dblclick',e=>{e.stopPropagation();removeItem(item.id);});
+  vp.appendChild(el);
+}
+
+function removeItem(id){
+  const el=document.getElementById('pi-'+id);
+  if(el){el.style.opacity='0';el.style.transition='opacity .15s';setTimeout(()=>el.remove(),160);}
+  S.placed=S.placed.filter(p=>p.id!==id);
+  if(pinnedId===id) pinnedId=null;
+  updStatus(); renderLib(); renderPanel();
+}
+
+function clearAll(){
+  document.getElementById('clearModal').classList.remove('on');
+  S.placed.forEach(p=>{const el=document.getElementById('pi-'+p.id);if(el) el.remove();});
+  S.placed=[]; pinnedId=null; S.placeCount=0;
+  updStatus(); renderLib(); renderPanel(); toast('Canvas cleared');
+}
+
+// ════════════════════════════════════════
+// TOOLTIP
+// ════════════════════════════════════════
+function showTT(e,item){
+  const tt=document.getElementById('tt');
+  document.getElementById('ttN').textContent=item.name;
+  const c=C(item.type);
+  const rows=[
+    ['Type',item.type.replace(/_/g,' ')],
+    ['Make',item.make],['Model',item.model],
+    ['HW Code',item.hw_code],['Processor',item.processor_id],['Config',item.config],
+  ].filter(r=>r[1]);
+  document.getElementById('ttB').innerHTML=
+    rows.map(r=>`<div class="ttr"><span class="ttk">${r[0]}</span><span class="ttv">${x(r[1])}</span></div>`).join('')
+    +`<span class="ttbg" style="background:${c.dot}">${item.type.replace(/_/g,' ')}</span>`;
+  tt.classList.add('on'); moveTT(e);
+}
+function moveTT(e){
+  const tt=document.getElementById('tt');
+  let tx=e.clientX+14,ty=e.clientY+14;
+  if(tx+tt.offsetWidth >window.innerWidth -8) tx=e.clientX-tt.offsetWidth-14;
+  if(ty+tt.offsetHeight>window.innerHeight-8) ty=e.clientY-tt.offsetHeight-14;
+  tt.style.left=tx+'px'; tt.style.top=ty+'px';
+}
+function hideTT(){document.getElementById('tt').classList.remove('on');}
+
+// ════════════════════════════════════════
+// ZOOM / PAN — unified viewport transform
+// ════════════════════════════════════════
+function applyT(){
+  document.getElementById('vp').style.transform=`translate(${S.px}px,${S.py}px) scale(${S.zoom})`;
+  document.getElementById('zPill').textContent=Math.round(S.zoom*100)+'%';
+}
+
+function fitView(){
+  if(!S.bgW) return;
+  const cw=document.getElementById('cw');
+  const sx=(cw.clientWidth-40)/S.bgW, sy=(cw.clientHeight-40)/S.bgH;
+  S.zoom=Math.min(sx,sy,1);
+  S.px=(cw.clientWidth -S.bgW*S.zoom)/2;
+  S.py=(cw.clientHeight-S.bgH*S.zoom)/2;
+  applyT();
+}
+
+function resetView(){fitView();}
+function zStep(d){
+  const cw=document.getElementById('cw');
+  zAround(cw.clientWidth/2,cw.clientHeight/2,d);
+}
+function zAround(cx,cy,d){
+  const old=S.zoom;
+  S.zoom=Math.min(Math.max(S.zoom+d,.08),6);
+  S.px=cx-(cx-S.px)*(S.zoom/old);
+  S.py=cy-(cy-S.py)*(S.zoom/old);
+  applyT();
+}
+
+// wheel zoom centred on cursor
+document.getElementById('cw').addEventListener('wheel',e=>{
+  e.preventDefault();
+  if(wheelZoomLocked){
+    const now=Date.now();
+    if(now-wheelToastAt>2500){
+      toast('Scroll zoom is off — use ＋/－ buttons to zoom, or click ⊙ Fit to reset the view');
+      wheelToastAt=now;
+    }
+    return;
+  }
+  const r=document.getElementById('cw').getBoundingClientRect();
+  zAround(e.clientX-r.left,e.clientY-r.top,e.deltaY<0?.1:-.1);
+},{passive:false});
+
+// pan
+let panS=null;
+document.getElementById('cw').addEventListener('mousedown',e=>{
+  if(!S.pan||e.button!==0) return;
+  panS={mx:e.clientX,my:e.clientY,px:S.px,py:S.py};
+  document.getElementById('cw').style.cursor='grabbing';
+});
+document.addEventListener('mousemove',e=>{
+  if(!panS) return;
+  S.px=panS.px+(e.clientX-panS.mx);
+  S.py=panS.py+(e.clientY-panS.my);
+  applyT();
+});
+document.addEventListener('mouseup',()=>{
+  if(panS){panS=null;document.getElementById('cw').style.cursor=S.pan?'grab':'default';}
+});
+
+function toggleSnap(){S.snap=!S.snap;document.getElementById('snapBtn').classList.toggle('on',S.snap);toast(S.snap?'Snap ON':'Snap OFF');}
+function toggleWheelZoom(){
+  wheelZoomLocked=!wheelZoomLocked;
+  document.getElementById('wheelZoomBtn').classList.toggle('on',!wheelZoomLocked);
+  toast(wheelZoomLocked?'Scroll zoom locked — use ＋/－ buttons instead':'Scroll zoom enabled');
+}
+function togglePan(){
+  S.pan=!S.pan;document.getElementById('panBtn').classList.toggle('on',S.pan);
+  document.getElementById('cw').style.cursor=S.pan?'grab':'default';
+}
+
+window.addEventListener('resize',()=>{if(S.bgW) fitView();});
+
+// ════════════════════════════════════════
+// STATUS
+// ════════════════════════════════════════
+function updStatus(){
+  const n=S.placed.length;
+  document.getElementById('cntPill').textContent=n+' item'+(n!==1?'s':'');
+  const hasContent=n>0||S.bgW>0;
+  document.getElementById('dh').classList.toggle('hid',hasContent);
+  renderSummary();
+}
+
+// ════════════════════════════════════════
+// SAVE / LOAD STATE
+// ════════════════════════════════════════
+const AKEY='fp_autosave_v2';
+
+function buildSave(){
+  return {v:2,ts:Date.now(),zoom:S.zoom,px:S.px,py:S.py,snap:S.snap,nid:S.nid,placeCount:S.placeCount,lib:S.lib,placed:S.placed};
+}
+
+function autoSave(){} // saving is now explicit via Save My Work
+
+function saveState(){
+  document.getElementById('saveModal').classList.add('on');
+}
+
+function saveToBrowser(){
+  document.getElementById('saveModal').classList.remove('on');
+  try{
+    const imgEl=document.getElementById('bgImg');
+    const obj=buildSave();
+    obj.bgSrc=imgEl.src.startsWith('data:')?imgEl.src:'';
+    if(JSON.stringify(obj).length>7_000_000) obj.bgSrc='__large__';
+    localStorage.setItem(AKEY,JSON.stringify(obj));
+    toast('Saved in browser ✓');
+  }catch(e){toast('⚠ Could not save — try Save to File instead');}
+}
+
+function saveToFile(){
+  document.getElementById('saveModal').classList.remove('on');
+  const imgEl=document.getElementById('bgImg');
+  const obj=buildSave();
+  obj.bgSrc=imgEl.src.startsWith('data:')?imgEl.src:'';
+  const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='floorplan_state_'+Date.now()+'.json';
+  a.click();
+  toast('File saved to your computer ✓');
+}
+
+function loadWork(){
+  const hasBrowserSave=!!localStorage.getItem(AKEY);
+  const opt=document.getElementById('loadBrowserOpt');
+  if(opt) opt.style.opacity=hasBrowserSave?'1':'.4';
+  document.getElementById('loadModal').classList.add('on');
+}
+
+function loadFromBrowser(){
+  document.getElementById('loadModal').classList.remove('on');
+  try{
+    const raw=localStorage.getItem(AKEY);
+    if(!raw){toast('No browser save found — use Load from File');return;}
+    applyLoadedState(JSON.parse(raw));
+    toast('Loaded from browser ✓');
+  }catch(e){toast('⚠ Could not load browser save');}
+}
+
+function loadFromFile(){
+  document.getElementById('loadModal').classList.remove('on');
+  document.getElementById('stateUpload').click();
+}
+
+function applyLoadedState(obj){
+  if(!obj||obj.v!==2){toast('⚠ Incompatible save file');return;}
+  // Clear placed
+  S.placed.forEach(p=>{const el=document.getElementById('pi-'+p.id);if(el)el.remove();});
+  S.lib=obj.lib||[];
+  S.placed=obj.placed||[];
+  // Assign missing nums and source fields (old saves won't have them)
+  S.placed.forEach((p,i)=>{
+    if(!p.num) p.num=i+1;
+    if(!p.source){const lib=S.lib.find(l=>l.id===p.libId);p.source=lib?lib.source||'':'';}
+  });
+  S.nid=obj.nid||1;
+  S.placeCount=obj.placeCount||(S.placed.length?Math.max(...S.placed.map(p=>p.num)):0);
+  S.zoom=obj.zoom||1; S.px=obj.px||0; S.py=obj.py||0;
+  S.snap=obj.snap||false;
+  S.srcFilter=null; pinnedId=null;
+  applyT();
+  document.getElementById('snapBtn').classList.toggle('on',S.snap);
+  // Restore bg
+  if(obj.bgSrc&&obj.bgSrc.startsWith('data:')){
+    const img=document.getElementById('bgImg');
+    img.onload=()=>{
+      S.bgW=img.naturalWidth; S.bgH=img.naturalHeight;
+      img.style.display='block';img.style.width=S.bgW+'px';img.style.height=S.bgH+'px';
+      updStatus();
+    };
+    img.src=obj.bgSrc;
+  } else if(obj.bgSrc==='__blob__'||obj.bgSrc==='__large__'){
+    toast('ℹ Re-upload floor plan image (too large to store in file)');
+  }
+  S.placed.forEach(p=>mountEl(p));
+  // Rebuild loadedBuiltins from restored lib
+  loadedBuiltins={};
+  S.lib.forEach(l=>{if(l.builtinFile){loadedBuiltins[l.builtinFile]=(loadedBuiltins[l.builtinFile]||0)+1;}});
+  rebuildFilters(); renderLib(); updStatus(); renderPanel();
+}
+
+document.getElementById('stateUpload').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{try{applyLoadedState(JSON.parse(ev.target.result));toast('State loaded ✓');}catch{toast('⚠ Bad state file');}};
+  r.readAsText(f); e.target.value='';
+});
+
+// ════════════════════════════════════════
+// EXPORT
+// ════════════════════════════════════════
+function exportJSON(){
+  if(!S.placed.length){toast('Nothing placed yet');return;}
+  const data={exported:new Date().toISOString(),items:S.placed.map(p=>({
+    name:p.name,type:p.type,make:p.make,model:p.model,hw_code:p.hw_code,
+    x:Math.round(p.x),y:Math.round(p.y)
+  }))};
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.download='layout_'+Date.now()+'.json';a.click();toast('JSON exported ✓');
+}
+
+function exportImage(){
+  const cw=document.getElementById('cw');
+  const tb=document.querySelector('.ct'),st=document.querySelector('.stb'),dh=document.getElementById('dh');
+  tb.style.display='none';st.style.display='none';dh.style.display='none';
+  html2canvas(cw,{backgroundColor:'#ffffff',useCORS:true,scale:2,logging:false}).then(cv=>{
+    tb.style.display='';st.style.display='';dh.style.display='';
+    const a=document.createElement('a');a.href=cv.toDataURL('image/png');
+    a.download='floorplan_'+Date.now()+'.png';a.click();toast('Image exported ✓');
+  }).catch(()=>{tb.style.display='';st.style.display='';dh.style.display='';toast('⚠ Export failed');});
+}
+
+// ════════════════════════════════════════
+// ROTATE FLOOR PLAN
+// ════════════════════════════════════════
+function rotateBg(){
+  const img=document.getElementById('bgImg');
+  if(!img.src||!img.src.startsWith('data:')){toast('Load a floor plan first');return;}
+  const c=document.createElement('canvas');
+  c.width=S.bgH; c.height=S.bgW;           // swap dimensions
+  const ctx=c.getContext('2d');
+  ctx.translate(c.width/2,c.height/2);
+  ctx.rotate(Math.PI/2);
+  ctx.drawImage(img,-S.bgW/2,-S.bgH/2);
+  const tmp=S.bgW; S.bgW=S.bgH; S.bgH=tmp; // commit swap
+  img.style.width=S.bgW+'px'; img.style.height=S.bgH+'px';
+  img.src=c.toDataURL('image/png');
+  fitView(); toast('Map rotated 90° ✓');
+}
+
+// ════════════════════════════════════════
+// CSV TEMPLATE DOWNLOAD
+// ════════════════════════════════════════
+function downloadCSVTemplate(){
+  const csv=[
+    'alias,hardware_type,hw_make,hw_model,hw_code,processor_id,configuration',
+    'UPS Unit 1,ups,APC,Smart-UPS 3000,HW001,,Rack mounted',
+    'HVAC Unit A,hvac,Daikin,Precision 5T,HW002,,Floor standing',
+    'Battery Bank 1,battery,EnerSys,DataSafe 12HX,HW003,,Cabinet',
+  ].join('\r\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='equipment_template.csv'; a.click();
+  toast('CSV template downloaded ✓');
+}
+
+// ════════════════════════════════════════
+// TOAST & MODAL
+// ════════════════════════════════════════
+let toastT;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('on');
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('on'),2400);
+}
+function showClearModal(){
+  if(!S.placed.length){toast('Nothing to clear');return;}
+  document.getElementById('clearModal').classList.add('on');
+}
+document.getElementById('clearModal').addEventListener('click',function(e){
+  if(e.target===this)this.classList.remove('on');
+});
+
+// ════════════════════════════════════════
+// ITEM PANEL
+// ════════════════════════════════════════
+function togglePanel(){
+  const p=document.getElementById('itemPanel');
+  const hidden=p.classList.toggle('hid');
+  document.getElementById('sbToggleBtn').classList.toggle('on',!hidden);
+}
+
+function renderPanel(){
+  // ---- filter chips ----
+  const filterEl=document.getElementById('ipFilter');
+  const allTypes=[...new Set(S.placed.map(p=>p.type))].sort();
+  const hasAque=S.placed.some(p=>p.source==='aque');
+  const hasAxin=S.placed.some(p=>p.source==='axin');
+  let fHtml=`<button class="ipfc ${panelFilter===null?'on':''}" style="color:var(--text)" onclick="setPanelFilter(null)">All</button>`;
+  if(hasAque) fHtml+=`<button class="ipfc ${panelFilter==='aque'?'on':''}" style="color:#79c0ff" onclick="setPanelFilter('aque')">AqUe</button>`;
+  if(hasAxin) fHtml+=`<button class="ipfc ${panelFilter==='axin'?'on':''}" style="color:#e3b341" onclick="setPanelFilter('axin')">AxIn</button>`;
+  allTypes.forEach(t=>{
+    const col=C(t).dot;
+    fHtml+=`<button class="ipfc ${panelFilter===t?'on':''}" style="color:${col}" onclick="setPanelFilter('${t}')">${t.replace(/_/g,' ')}</button>`;
+  });
+  filterEl.innerHTML=fHtml;
+
+  // ---- list ----
+  const list=document.getElementById('ipList');
+  document.getElementById('ipCount').textContent=S.placed.length;
+  let items=S.placed;
+  if(panelFilter==='aque') items=items.filter(p=>p.source==='aque');
+  else if(panelFilter==='axin') items=items.filter(p=>p.source==='axin');
+  else if(panelFilter) items=items.filter(p=>p.type===panelFilter);
+  if(!items.length){
+    list.innerHTML=`<div class="ipmt">${S.placed.length?'No items match this filter.':'No items placed yet.<br>Drag equipment onto the map.'}</div>`;
+    return;
+  }
+  list.innerHTML=items.map(p=>{
+    const c=C(p.type);
+    const pinCls=pinnedId===p.id?'pinned':'';
+    return `<div class="ipi ${pinCls}" data-id="${p.id}"
+      onmouseenter="hlItem(${p.id})"
+      onmouseleave="unhlItem(${p.id})"
+      onclick="pinItem(${p.id})"
+      title="Click to highlight and jump to this item on the map">
+      <span class="ipnum">#${p.num}</span>
+      <span class="ipdot" style="background:${c.dot}"></span>
+      <span class="ipinfo">
+        <div class="ipname">${x(p.name)}</div>
+        <div class="iptype">${p.type.replace(/_/g,' ')}${p.source?' · '+p.source:''}</div>
+      </span>
+    </div>`;
+  }).join('');
+}
+
+function setPanelFilter(f){panelFilter=f;renderPanel();}
+
+function renderSummary(){
+  const n=S.placed.length;
+  document.getElementById('sbTotalNum').textContent=n;
+  const chips=document.getElementById('sbChips');
+  if(!n){
+    chips.innerHTML='<span style="font-size:10px;color:var(--muted);font-family:\'IBM Plex Mono\',monospace">No items on map yet — drag from the left panel</span>';
+    return;
+  }
+  const aque=S.placed.filter(p=>p.source==='aque').length;
+  const axin=S.placed.filter(p=>p.source==='axin').length;
+  const typeCounts={};
+  S.placed.forEach(p=>{typeCounts[p.type]=(typeCounts[p.type]||0)+1;});
+  let html='';
+  if(aque) html+=`<span class="sb-chip"><span class="sc-dot" style="background:#79c0ff"></span><span class="sc-lbl">AqUe</span><span class="sc-cnt">${aque}</span></span>`;
+  if(axin) html+=`<span class="sb-chip"><span class="sc-dot" style="background:#e3b341"></span><span class="sc-lbl">AxIn</span><span class="sc-cnt">${axin}</span></span>`;
+  if((aque||axin)&&Object.keys(typeCounts).length) html+=`<span class="sb-vsep"></span>`;
+  Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]).forEach(([type,cnt])=>{
+    const dot=C(type).dot;
+    html+=`<span class="sb-chip"><span class="sc-dot" style="background:${dot}"></span><span class="sc-lbl">${type.replace(/_/g,' ')}</span><span class="sc-cnt">${cnt}</span></span>`;
+  });
+  chips.innerHTML=html;
+}
+
+function hlItem(id){
+  const el=document.getElementById('pi-'+id);
+  if(el&&pinnedId!==id) el.classList.add('hl');
+}
+function unhlItem(id){
+  const el=document.getElementById('pi-'+id);
+  if(el&&pinnedId!==id) el.classList.remove('hl');
+}
+function pinItem(id){
+  if(pinnedId!==null){
+    const prev=document.getElementById('pi-'+pinnedId);
+    if(prev){prev.classList.remove('pin');prev.classList.remove('hl');}
+  }
+  if(pinnedId===id){
+    pinnedId=null;
+  } else {
+    pinnedId=id;
+    const el=document.getElementById('pi-'+id);
+    if(el){el.classList.add('pin');el.classList.remove('hl');}
+    const item=S.placed.find(p=>p.id===id);
+    if(item) panToItem(item);
+  }
+  renderPanel();
+}
+function panToItem(item){
+  const cw=document.getElementById('cw');
+  S.px=cw.clientWidth/2-(item.x+50)*S.zoom;
+  S.py=cw.clientHeight/2-(item.y+15)*S.zoom;
+  applyT();
+}
+
+// ── Draggable item panel ──
+(function(){
+  const hdr=document.getElementById('ipHeader');
+  const panel=document.getElementById('itemPanel');
+  hdr.addEventListener('mousedown',e=>{
+    if(e.target.tagName==='BUTTON') return;
+    const rect=panel.getBoundingClientRect();
+    const cwRect=document.getElementById('cw').getBoundingClientRect();
+    // Ensure panel uses left/top instead of right
+    panel.style.right='auto';
+    panel.style.left=(rect.left-cwRect.left)+'px';
+    panel.style.top=(rect.top-cwRect.top)+'px';
+    panelDrag={startX:e.clientX,startY:e.clientY,startLeft:rect.left-cwRect.left,startTop:rect.top-cwRect.top};
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!panelDrag) return;
+    const cwRect=document.getElementById('cw').getBoundingClientRect();
+    let nl=panelDrag.startLeft+(e.clientX-panelDrag.startX);
+    let nt=panelDrag.startTop+(e.clientY-panelDrag.startY);
+    // Clamp within canvas bounds
+    nl=Math.max(0,Math.min(cwRect.width-panel.offsetWidth,nl));
+    nt=Math.max(0,Math.min(cwRect.height-40,nt));
+    panel.style.left=nl+'px';
+    panel.style.top=nt+'px';
+  });
+  document.addEventListener('mouseup',()=>{panelDrag=null;});
+})();
+
+// ════════════════════════════════════════
+// GUIDE
+// ════════════════════════════════════════
+function showGuide(){document.getElementById('guideModal').classList.add('on');}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+applyT(); updStatus(); renderPanel(); renderSummary();
+// Panel starts open — mark the summary bar button accordingly
+document.getElementById('sbToggleBtn').classList.add('on');
+
+// Auto-load all builtin PLDT site CSVs on startup
+(function autoLoadBuiltins(){
+  let total=0;
+  for(const [filename,text] of Object.entries(BUILTIN_CSVS)){
+    const n=ingestCSVText(text,filename);
+    if(n>0){loadedBuiltins[filename]=n;total+=n;}
+  }
+  if(total>0){rebuildFilters();renderLib();toast(`${total} PLDT equipment items pre-loaded ✓`);}
+})();
+
+// Load default floor plan if no saved state restored a background
+(function loadDefaultPlan(){
+  const img=document.getElementById('bgImg');
+  if(img.src&&img.src.startsWith('data:')) return; // already restored from state
+  const applyImg=()=>{
+    S.bgW=img.naturalWidth; S.bgH=img.naturalHeight;
+    img.style.display='block';
+    img.style.width=S.bgW+'px'; img.style.height=S.bgH+'px';
+    fitView(); updStatus();
+    document.getElementById('dh').classList.add('hid');
+    // Try to convert to a data URL so it can be saved later
+    try{
+      const c=document.createElement('canvas');
+      c.width=S.bgW; c.height=S.bgH;
+      c.getContext('2d').drawImage(img,0,0);
+      const dataUrl=c.toDataURL('image/png');
+      img.removeEventListener('load',onLoad);
+      img.src=dataUrl; // replace relative src with embeddable data URL
+    }catch(e){} // file:// CORS — keep relative URL, saving will fall back gracefully
+  };
+  const onLoad=()=>{img.removeEventListener('load',onLoad);applyImg();};
+  img.addEventListener('load',onLoad);
+  img.addEventListener('error',()=>img.removeEventListener('load',onLoad),{once:true});
+  img.src='default_plan.png';
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+UPS Unit A
+UPS Unit B
+HVAC System 1
+HVAC System 2
+Battery Bank A
+Battery Bank B
+PDU Rack 1
+PDU Rack 2
+Server Node 1
+Server Node 2
+Network Switch A
+Network Switch B

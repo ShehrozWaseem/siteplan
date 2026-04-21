@@ -1,0 +1,17 @@
+alias,hardware_type,processor_id,configuration,hw_code,hw_make,hw_model
+Grid Meter,energy_meter,000000000b6b132b,EM_FineCoEM_115,energy_meter-1--000000000b6b132b,EET,PMC-630
+Fresh Water Flow Meter,energy_meter,000000000b6b132b,accu_rev_1310,energy_meter-2--000000000b6b132b,Acrel,ADL400(3-Phase EM)
+Rectifier Room Humidity,io,000000000b6b132b,humidity,io-10--000000000b6b132b,PLC,PLC101
+Rectifier Room Temperature,io,000000000b6b132b,shelter_1_temperature,io-11--000000000b6b132b,PLC,IO Controller
+Environmental 1,io,000000000b6b132b,temco_controller_io,io-30--000000000b6b132b,PLC,RMC1216
+Water Pump EM,energy_meter,000000000b6b132b,meter_schneider,energy_meter-41--000000000b6b132b,Schneider,PM2100(3-Phase EM)
+Chiller Primary Pump EM,energy_meter,000000000b6b132b,meter_schneider,energy_meter-42--000000000b6b132b,Schneider,PM2100(3-Phase EM)
+Chiller Secondary Pump EM,energy_meter,000000000b6b132b,meter_schneider,energy_meter-43--000000000b6b132b,Schneider,PM2100(3-Phase EM)
+Sump Pump EM,energy_meter,000000000b6b132b,accu_rev_1310,energy_meter-44--000000000b6b132b,Acrel,ADL200-N(Single Phase)
+AcBel Rectifier Measurements,energy_meter,000000000b6b132b,finecoem115_even_parity,energy_meter-46--000000000b6b132b,ACREL,AMC16-DETT
+VRLA MidPoint,battery,000000000b6b132b,VRLA_Midpoint,battery-48--000000000b6b132b,PLC,IO Controller
+Chiller,hvac,000000000b6b132b,temco_controller_hvac,hvac-9--000000000b6b132b,SMARDT,
+GENSET 1 EM,energy_meter,000000000b6b132b,EM_FineCoEM_115,energy_meter-49--000000000b6b132b,FinCo,EM-115(Single Phase)
+GENSET 2 EM,energy_meter,000000000b6b132b,EM_FineCoEM_115,energy_meter-50--000000000b6b132b,FinCo,EM-115(Single Phase)
+AcBel Dry Contacts,io,000000000b6b132b,temco_controller_io,io-51--000000000b6b132b,PLC,RMC1216
+Controlled Lighting,energy_meter,000000000b6b132b,accu_rev_1310,energy_meter-52--000000000b6b132b,,
