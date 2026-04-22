@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DC Floor Plan Manager — PLDT</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 
@@ -57,6 +56,12 @@ header{display:flex;align-items:center;gap:9px;padding:0 14px;height:50px;backgr
 .ft.act{background:var(--bg);color:var(--accent);border-color:var(--accent);}
 .ft-x{opacity:.4;font-size:9px;margin-left:3px;cursor:pointer;transition:opacity .12s;line-height:1;}
 .ft-x:hover{opacity:1;color:var(--warn);}
+.ft-r{opacity:.35;font-size:10px;margin-left:4px;cursor:pointer;transition:opacity .12s;line-height:1;}
+.ft-r:hover{opacity:1;color:var(--accent2);}
+.mo-btn-col{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+.mo-btn-col button{width:100%;padding:9px 0;font-size:12px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-family:'IBM Plex Mono',monospace;transition:background .12s;}
+.mo-btn-col button:hover{background:var(--surface3);}
+.mo-btn-col button.pri{background:var(--accent2);border-color:var(--accent2);color:#0d1117;font-weight:700;}
 .ft-add{padding:4px 10px;border-radius:4px;border:1px dashed var(--border);background:transparent;color:var(--muted);font-size:11px;font-family:'IBM Plex Mono',monospace;cursor:pointer;white-space:nowrap;transition:all .15s;}
 .ft-add:hover{border-color:var(--accent2);color:var(--accent2);}
 
@@ -268,7 +273,7 @@ input[type="file"]{display:none;}
   <button class="hb" onclick="loadWork()" title="Open a previously saved work file, or restore from your last browser save.">📂 Load Saved Work</button>
   <div class="hs"></div>
   <button class="hb" onclick="exportJSON()" title="Download the list of all placed equipment with their positions as a JSON file. Useful for sharing data with other systems.">📄 Export JSON</button>
-  <button class="hb p" onclick="exportImage()" title="Save a screenshot of the current map as a PNG image. Great for printing or sharing via email.">📸 Save as Picture</button>
+  <button class="hb p" onclick="document.getElementById('exportPicModal').classList.add('on')" title="Save a screenshot of the floor map as a PNG image. Great for printing or sharing via email.">📸 Save as Picture</button>
   <button class="hb r" onclick="showClearModal()" title="Remove all equipment from the map canvas. Your equipment list on the left will be kept. This cannot be undone.">🗑 Remove All</button>
 </header>
 
@@ -494,44 +499,15 @@ input[type="file"]{display:none;}
   </div>
 </div>
 
-<div class="mo" id="saveModal" onclick="if(event.target===this)this.classList.remove('on')">
-  <div class="md" style="width:420px;max-width:95vw;">
-    <h3 style="font-size:15px;margin-bottom:4px;">💾 Save My Work</h3>
-    <p>Choose how to save. Both options keep your map, equipment list, and all placed items.</p>
-    <div class="sopts">
-      <div class="sopt" onclick="saveToBrowser()">
-        <div class="sopt-icon">🌐</div>
-        <div class="sopt-title">Save in Browser</div>
-        <div class="sopt-desc">Quick save — no file needed. Works only on this computer and this browser.</div>
-        <div class="sopt-warn">⚠ Lost if you clear browser history or switch browsers.</div>
-      </div>
-      <div class="sopt" onclick="saveToFile()">
-        <div class="sopt-icon">💽</div>
-        <div class="sopt-title">Save to File</div>
-        <div class="sopt-desc">Downloads a file to your computer. You can share it with others or reload it after restarting your PC.</div>
-      </div>
-    </div>
-    <div class="mdb"><button onclick="document.getElementById('saveModal').classList.remove('on')">Cancel</button></div>
-  </div>
-</div>
 
 <div class="mo" id="loadModal" onclick="if(event.target===this)this.classList.remove('on')">
-  <div class="md" style="width:420px;max-width:95vw;">
+  <div class="md" style="width:360px;max-width:95vw;">
     <h3 style="font-size:15px;margin-bottom:4px;">📂 Load Saved Work</h3>
-    <p>Where would you like to load from?</p>
-    <div class="sopts">
-      <div class="sopt" id="loadBrowserOpt" onclick="loadFromBrowser()">
-        <div class="sopt-icon">🌐</div>
-        <div class="sopt-title">Load from Browser</div>
-        <div class="sopt-desc">Restore your last "Save in Browser" session on this computer.</div>
-      </div>
-      <div class="sopt" onclick="loadFromFile()">
-        <div class="sopt-icon">💽</div>
-        <div class="sopt-title">Load from File</div>
-        <div class="sopt-desc">Pick a saved file (.json) from your computer to load your work.</div>
-      </div>
+    <p>Pick a previously saved <code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-size:10px;">.json</code> file from your computer to restore your layout.</p>
+    <div class="mdb" style="margin-top:6px;">
+      <button onclick="document.getElementById('loadModal').classList.remove('on')">Cancel</button>
+      <button class="cf" style="background:var(--accent);border-color:var(--accent);" onclick="loadFromFile()">📁 Choose File</button>
     </div>
-    <div class="mdb"><button onclick="document.getElementById('loadModal').classList.remove('on')">Cancel</button></div>
   </div>
 </div>
 
@@ -556,6 +532,31 @@ input[type="file"]{display:none;}
     <div class="mdb" style="margin-top:12px;">
       <button onclick="document.getElementById('addFloorModal').classList.remove('on')">Cancel</button>
       <button style="background:var(--accent2);border-color:var(--accent2);color:#0d1117;font-weight:600;" onclick="confirmAddFloor()">Add Floor</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="renameFloorModal" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="md" style="width:360px;max-width:92vw;">
+    <h3>✏ Rename Floor</h3>
+    <input type="text" id="renameFloorInput" placeholder="Floor name…"
+           style="width:100%;padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;outline:none;font-family:'IBM Plex Sans',sans-serif;"
+           onkeydown="if(event.key==='Enter')confirmRenameFloor()">
+    <div class="mdb" style="margin-top:12px;">
+      <button onclick="document.getElementById('renameFloorModal').classList.remove('on')">Cancel</button>
+      <button style="background:var(--accent2);border-color:var(--accent2);color:#0d1117;font-weight:600;" onclick="confirmRenameFloor()">Rename</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="exportPicModal" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="md" style="width:360px;max-width:92vw;">
+    <h3>📸 Save as Picture</h3>
+    <p style="color:var(--muted);font-size:12px;">Choose which floors to export as PNG images.</p>
+    <div class="mo-btn-col">
+      <button class="pri" onclick="exportCurrentFloor()">Current floor only</button>
+      <button onclick="exportAllFloors()">All floors (one file each)</button>
+      <button onclick="document.getElementById('exportPicModal').classList.remove('on')">Cancel</button>
     </div>
   </div>
 </div>
@@ -588,6 +589,16 @@ let panelDrag=null; // for dragging item panel
 let floors=[];
 let currentFloorId=null;
 let nextFid=1;
+
+// Global equipment library — shared across all floors
+// S.nid stays as the single global ID counter (not saved per-floor)
+let globalLib=[];
+S.lib=globalLib;
+
+// Reference canvas size — set from the first floor plan loaded.
+// All floor plan images are stretched to this size so every floor
+// shares the same coordinate space and overlays the same building footprint.
+let refW=0,refH=0;
 
 // ════════════════════════════════════════
 // UNSAVED CHANGES TRACKING
@@ -640,9 +651,13 @@ document.getElementById('bgUpload').addEventListener('change',e=>{
   r.onload=ev=>{
     const img=document.getElementById('bgImg');
     img.onload=()=>{
-      S.bgW=img.naturalWidth; S.bgH=img.naturalHeight;
+      if(!refW){refW=img.naturalWidth;refH=img.naturalHeight;}
+      S.bgW=refW;S.bgH=refH;
       img.style.display='block';
-      img.style.width=S.bgW+'px'; img.style.height=S.bgH+'px';
+      img.style.width=refW+'px';img.style.height=refH+'px';
+      // Also update the current floor record's stored bgSrc
+      const fi=floors.findIndex(f=>f.id===currentFloorId);
+      if(fi>=0){floors[fi].bgSrc=img.src;floors[fi].bgW=refW;floors[fi].bgH=refH;}
       fitView(); updStatus();
       document.getElementById('dh').classList.add('hid');
       toast('Floor plan loaded ✓');
@@ -715,7 +730,7 @@ function showCsvModal(){
 
 function removeBuiltin(filename){
   const before=S.lib.length;
-  S.lib=S.lib.filter(l=>l.builtinFile!==filename);
+  S.lib=globalLib=S.lib.filter(l=>l.builtinFile!==filename);
   delete loadedBuiltins[filename];
   const removed=before-S.lib.length;
   document.getElementById('csvModal').classList.remove('on');
@@ -927,9 +942,15 @@ function togSrcF(src){S.srcFilter=S.srcFilter===src?null:src;rebuildFilters();re
 // ════════════════════════════════════════
 // LIBRARY
 // ════════════════════════════════════════
+function getAllPlacedLibIds(){
+  const ids=new Set(S.placed.map(p=>p.libId));
+  floors.forEach(f=>{if(f.id!==currentFloorId)(f.placed||[]).forEach(p=>ids.add(p.libId));});
+  return ids;
+}
+
 function renderLib(){
   const q=document.getElementById('searchBox').value.trim().toLowerCase();
-  const placedIds=new Set(S.placed.map(p=>p.libId));
+  const placedIds=getAllPlacedLibIds();
   let items=S.lib.filter(i=>!placedIds.has(i.id));
   if(S.srcFilter) items=items.filter(i=>i.source===S.srcFilter);
   if(q) items=items.filter(i=>
@@ -1006,9 +1027,11 @@ function mountEl(item){
 
   // drag to move
   let ox=0,oy=0,hasMoved=false;
+  el.addEventListener('dragstart',e=>e.preventDefault());
+  el.setAttribute('draggable','false');
   el.addEventListener('mousedown',e=>{
     if(e.button!==0||S.pan) return;
-    e.stopPropagation(); hideTT();
+    e.preventDefault(); e.stopPropagation(); hideTT();
     const er=el.getBoundingClientRect();
     ox=e.clientX-er.left; oy=e.clientY-er.top;
     hasMoved=false;
@@ -1094,8 +1117,8 @@ function applyT(){
 function fitView(){
   if(!S.bgW) return;
   const cw=document.getElementById('cw');
-  const sx=(cw.clientWidth-40)/S.bgW, sy=(cw.clientHeight-40)/S.bgH;
-  S.zoom=Math.min(sx,sy,1);
+  const sx=(cw.clientWidth-12)/S.bgW, sy=(cw.clientHeight-12)/S.bgH;
+  S.zoom=Math.min(sx,sy); // contain fit, no zoom cap
   S.px=(cw.clientWidth -S.bgW*S.zoom)/2;
   S.py=(cw.clientHeight-S.bgH*S.zoom)/2;
   applyT();
@@ -1181,36 +1204,39 @@ function saveCurrentToFloors(){
   floors[idx]={...floors[idx],
     bgSrc:img.src.startsWith('data:')?img.src:(S.bgW>0?img.src:''),
     bgW:S.bgW,bgH:S.bgH,
-    lib:S.lib,placed:S.placed,
-    zoom:S.zoom,px:S.px,py:S.py,
-    snap:S.snap,nid:S.nid,placeCount:S.placeCount};
+    placed:S.placed,
+    placeCount:S.placeCount};
 }
 
 function loadFloorIntoS(f){
-  S.lib=f.lib||[];S.placed=f.placed||[];
+  S.lib=globalLib;S.placed=f.placed||[];
   S.placed.forEach((p,i)=>{if(!p.num)p.num=i+1;});
-  S.zoom=f.zoom||1;S.px=f.px||0;S.py=f.py||0;
-  S.snap=f.snap||false;S.nid=f.nid||1;
   S.placeCount=f.placeCount||(S.placed.length?Math.max(...S.placed.map(p=>p.num)):0);
-  S.bgW=f.bgW||0;S.bgH=f.bgH||0;
+  // Use reference canvas size if available, otherwise fall back to floor's own dims
+  S.bgW=refW||f.bgW||0;S.bgH=refH||f.bgH||0;
   S.srcFilter=null;
   applyT();
   document.getElementById('snapBtn').classList.toggle('on',S.snap);
   const img=document.getElementById('bgImg');
+  const dispW=refW||f.bgW||0;const dispH=refH||f.bgH||0;
   if(f.bgSrc&&f.bgSrc.startsWith('data:')){
     img.onload=()=>{
-      S.bgW=img.naturalWidth;S.bgH=img.naturalHeight;
-      img.style.display='block';img.style.width=S.bgW+'px';img.style.height=S.bgH+'px';
+      if(!refW){refW=img.naturalWidth;refH=img.naturalHeight;}
+      S.bgW=refW;S.bgH=refH;
+      img.style.display='block';img.style.width=refW+'px';img.style.height=refH+'px';
       updStatus();
     };
     img.src=f.bgSrc;
   }else if(f.bgSrc&&!f.bgSrc.startsWith('__')){
     img.onload=()=>{
-      S.bgW=img.naturalWidth;S.bgH=img.naturalHeight;
-      img.style.display='block';img.style.width=S.bgW+'px';img.style.height=S.bgH+'px';
+      if(!refW){refW=img.naturalWidth;refH=img.naturalHeight;}
+      S.bgW=refW;S.bgH=refH;
+      img.style.display='block';img.style.width=refW+'px';img.style.height=refH+'px';
       updStatus();
     };
     img.src=f.bgSrc;
+  }else if(dispW>0){
+    img.src='';img.style.display='none';S.bgW=dispW;S.bgH=dispH;updStatus();
   }else{
     img.src='';img.style.display='none';S.bgW=0;S.bgH=0;updStatus();
   }
@@ -1236,8 +1262,9 @@ function renderFloorTabs(){
   const bar=document.getElementById('floorBar');
   bar.innerHTML=floors.map(f=>{
     const act=f.id===currentFloorId?'act':'';
+    const ren=`<span class="ft-r" onclick="showRenameFloorModal(${f.id},event)" title="Rename floor">✎</span>`;
     const del=floors.length>1?`<span class="ft-x" onclick="deleteFloor(${f.id},event)" title="Delete floor">✕</span>`:'';
-    return `<div class="ft ${act}" onclick="switchFloor(${f.id})">${x(f.name)}${del}</div>`;
+    return `<div class="ft ${act}" onclick="switchFloor(${f.id})">${x(f.name)}${ren}${del}</div>`;
   }).join('')+`<button class="ft-add" onclick="showAddFloorModal()">＋ Floor</button>`;
 }
 
@@ -1254,6 +1281,23 @@ function confirmAddFloor(){
   const fid=nextFid++;
   floors.push({id:fid,name,bgSrc:'',bgW:0,bgH:0,lib:[],placed:[],zoom:1,px:0,py:0,snap:false,nid:1,placeCount:0});
   switchFloor(fid);
+}
+
+let renameFid=null;
+function showRenameFloorModal(fid,e){
+  e.stopPropagation();
+  renameFid=fid;
+  const f=floors.find(fl=>fl.id===fid);
+  document.getElementById('renameFloorInput').value=f?f.name:'';
+  document.getElementById('renameFloorModal').classList.add('on');
+  setTimeout(()=>document.getElementById('renameFloorInput').focus(),80);
+}
+function confirmRenameFloor(){
+  const name=document.getElementById('renameFloorInput').value.trim();
+  if(!name){toast('Enter a floor name');return;}
+  const f=floors.find(fl=>fl.id===renameFid);
+  if(f){f.name=name;renderFloorTabs();autoSave();markUnsaved();toast('Floor renamed ✓');}
+  document.getElementById('renameFloorModal').classList.remove('on');
 }
 
 function deleteFloor(fid,e){
@@ -1282,7 +1326,9 @@ const AKEY='fp_autosave_v2';
 
 function buildSave(){
   saveCurrentToFloors();
-  return {v:3,ts:Date.now(),currentFloorId,floors:floors.map(f=>({...f}))};
+  return {v:3,ts:Date.now(),currentFloorId,nid:S.nid,globalLib,
+    zoom:S.zoom,px:S.px,py:S.py,snap:S.snap,refW,refH,
+    floors:floors.map(({lib,...f})=>f)}; // lib excluded — it's global
 }
 
 function autoSave(){
@@ -1318,23 +1364,7 @@ function toastAction(msg,btnLabel,btnFn){
   toastT=setTimeout(()=>{el.classList.remove('on');el.textContent='';},8000);
 }
 
-function saveState(){
-  document.getElementById('saveModal').classList.add('on');
-}
-
-function saveToBrowser(){
-  document.getElementById('saveModal').classList.remove('on');
-  try{
-    const obj=buildSave();
-    let str=JSON.stringify(obj);
-    if(str.length>7_000_000){
-      obj.floors=obj.floors.map(f=>({...f,bgSrc:f.bgSrc&&f.bgSrc.length>1_000_000?'__large__':f.bgSrc}));
-      str=JSON.stringify(obj);
-    }
-    localStorage.setItem(AKEY,str);
-    markSaved(); toast('Saved in browser ✓');
-  }catch(e){toast('⚠ Could not save — try Save to File instead');}
-}
+function saveState(){ saveToFile(); }
 
 function saveToFile(){
   document.getElementById('saveModal').classList.remove('on');
@@ -1348,9 +1378,6 @@ function saveToFile(){
 }
 
 function loadWork(){
-  const hasBrowserSave=!!localStorage.getItem(AKEY);
-  const opt=document.getElementById('loadBrowserOpt');
-  if(opt) opt.style.opacity=hasBrowserSave?'1':'.4';
   document.getElementById('loadModal').classList.add('on');
 }
 
@@ -1374,9 +1401,16 @@ function applyLoadedState(obj){
   S.placed.forEach(p=>{const el=document.getElementById('pi-'+p.id);if(el)el.remove();});
 
   if(obj.v===3){
+    // Restore global lib (fall back to first floor's lib for older v3 saves)
+    S.lib=globalLib=obj.globalLib||(obj.floors&&obj.floors[0]&&obj.floors[0].lib)||[];
+    S.nid=obj.nid||((globalLib.length?Math.max(...globalLib.map(l=>l.id)):0)+1);
     floors=obj.floors||[];
     nextFid=floors.length?Math.max(...floors.map(f=>f.id))+1:1;
     pinnedId=null;panelFilter=null;currentFloorId=null;
+    // Restore global viewport + reference canvas state
+    refW=obj.refW||0;refH=obj.refH||0;
+    S.zoom=obj.zoom||1;S.px=obj.px||0;S.py=obj.py||0;
+    S.snap=obj.snap||false;
     const tid=obj.currentFloorId||(floors[0]&&floors[0].id);
     if(!tid||!floors.length){toast('⚠ No floors in save file');return;}
     currentFloorId=tid;
@@ -1385,15 +1419,17 @@ function applyLoadedState(obj){
     loadFloorIntoS(f);
     renderFloorTabs();
   }else{
-    // v2 → migrate to single floor
+    // v2 → migrate to single floor; lib becomes global
     const lib=obj.lib||[];
+    S.lib=globalLib=lib;
+    S.nid=obj.nid||((lib.length?Math.max(...lib.map(l=>l.id)):0)+1);
     const placed=obj.placed||[];
     placed.forEach((p,i)=>{
       if(!p.num)p.num=i+1;
       if(!p.source){const l=lib.find(l=>l.id===p.libId);p.source=l?l.source||'':'';}
     });
     const f={id:1,name:'Floor',bgSrc:obj.bgSrc||'',bgW:0,bgH:0,
-      lib,placed,zoom:obj.zoom||1,px:obj.px||0,py:obj.py||0,
+      placed,zoom:obj.zoom||1,px:obj.px||0,py:obj.py||0,
       snap:obj.snap||false,nid:obj.nid||1,
       placeCount:obj.placeCount||(placed.length?Math.max(...placed.map(p=>p.num)):0)};
     floors=[f];nextFid=2;currentFloorId=1;pinnedId=null;panelFilter=null;
@@ -1424,15 +1460,126 @@ function exportJSON(){
   a.download='layout_'+Date.now()+'.json';a.click();toast('JSON exported ✓');
 }
 
+function _rrect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+
+function _drawItems(ctx){
+  S.placed.forEach(p=>{
+    const c=C(p.type);
+    const iw=100,pad=5,numH=9;
+    ctx.font='700 9.5px sans-serif';
+    const mw=iw-pad*2;
+    const words=p.name.split(' ');
+    const lines=[''];
+    for(const w of words){
+      const test=(lines[lines.length-1]?lines[lines.length-1]+' ':'')+w;
+      if(ctx.measureText(test).width<=mw) lines[lines.length-1]=test;
+      else if(lines.length<2) lines.push(w);
+      else{lines[1]=lines[1].replace(/\s?\S+$/,'')+'…';break;}
+    }
+    const ih=pad+numH+2+lines.length*13+pad;
+    ctx.fillStyle=c.bg;
+    _rrect(ctx,p.x,p.y,iw,ih,5);ctx.fill();
+    ctx.strokeStyle=c.bd;ctx.lineWidth=1.5;
+    _rrect(ctx,p.x,p.y,iw,ih,5);ctx.stroke();
+    ctx.fillStyle=c.tx;ctx.globalAlpha=.65;
+    ctx.font='600 7px monospace';
+    ctx.fillText('#'+p.num,p.x+pad,p.y+pad+7);
+    ctx.globalAlpha=1;
+    ctx.font='700 9.5px sans-serif';
+    ctx.fillStyle=c.tx;
+    lines.forEach((ln,i)=>ctx.fillText(ln,p.x+pad,p.y+pad+numH+2+13*(i+1)-2));
+  });
+}
+
+function _floorSlug(name){return (name||'floor').replace(/[^a-z0-9]+/gi,'_').replace(/^_|_$/g,'');}
+
 function exportImage(){
-  const cw=document.getElementById('cw');
-  const tb=document.querySelector('.ct'),st=document.querySelector('.stb'),dh=document.getElementById('dh');
-  tb.style.display='none';st.style.display='none';dh.style.display='none';
-  html2canvas(cw,{backgroundColor:'#ffffff',useCORS:true,scale:2,logging:false}).then(cv=>{
-    tb.style.display='';st.style.display='';dh.style.display='';
-    const a=document.createElement('a');a.href=cv.toDataURL('image/png');
-    a.download='floorplan_'+Date.now()+'.png';a.click();toast('Image exported ✓');
-  }).catch(()=>{tb.style.display='';st.style.display='';dh.style.display='';toast('⚠ Export failed');});
+  if(!S.bgW&&!S.placed.length){toast('Nothing to export');return;}
+  const W=S.bgW||800,H=S.bgH||600,sc=2;
+  const cf=floors.find(f=>f.id===currentFloorId);
+  const fname='floorplan_'+_floorSlug(cf?cf.name:'floor')+'_'+Date.now()+'.png';
+
+  function makeCanvas(withBg){
+    const cv=document.createElement('canvas');
+    cv.width=W*sc;cv.height=H*sc;
+    const ctx=cv.getContext('2d');
+    ctx.scale(sc,sc);
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+    if(withBg){
+      const img=document.getElementById('bgImg');
+      if(img.src&&img.style.display!=='none') ctx.drawImage(img,0,0,W,H);
+    }
+    _drawItems(ctx);
+    return cv.toDataURL('image/png');
+  }
+
+  let dataUrl;
+  try{ dataUrl=makeCanvas(true); }
+  catch(e){
+    try{ dataUrl=makeCanvas(false); }
+    catch(e2){ toast('⚠ Export failed'); return; }
+  }
+
+  const a=document.createElement('a');
+  a.href=dataUrl;a.download=fname;a.click();
+  toast('Image exported ✓');
+}
+
+function exportCurrentFloor(){
+  document.getElementById('exportPicModal').classList.remove('on');
+  exportImage();
+}
+
+// Render any floor's data to a dataURL without touching the DOM
+function _renderFloor(floor, onDone){
+  const W=refW||floor.bgW||800, H=refH||floor.bgH||600, sc=2;
+  const cv=document.createElement('canvas');
+  cv.width=W*sc; cv.height=H*sc;
+  const ctx=cv.getContext('2d');
+  ctx.scale(sc,sc);
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
+  const doItems=()=>{
+    const savedPlaced=S.placed;
+    S.placed=floor.placed||[];
+    try{_drawItems(ctx);}finally{S.placed=savedPlaced;}
+    let url=null;
+    try{url=cv.toDataURL('image/png');}catch(e){}
+    onDone(url);
+  };
+  if(floor.bgSrc&&floor.bgSrc.startsWith('data:')){
+    const tmp=new Image();
+    tmp.onload=()=>{try{ctx.drawImage(tmp,0,0,W,H);}catch(e){} doItems();};
+    tmp.onerror=()=>doItems();
+    tmp.src=floor.bgSrc;
+  } else { doItems(); }
+}
+
+function exportAllFloors(){
+  document.getElementById('exportPicModal').classList.remove('on');
+  saveCurrentToFloors();
+  let i=0;
+  const ts=Date.now();
+  const next=()=>{
+    if(i>=floors.length){toast('All floors exported ✓');return;}
+    const f=floors[i++];
+    _renderFloor(f,url=>{
+      if(url){
+        const a=document.createElement('a');
+        a.href=url;
+        a.download='floorplan_'+_floorSlug(f.name)+'_'+ts+'.png';
+        a.click();
+      }
+      setTimeout(next,400);
+    });
+  };
+  next();
 }
 
 // ════════════════════════════════════════
@@ -1448,6 +1595,7 @@ function rotateBg(){
   ctx.rotate(Math.PI/2);
   ctx.drawImage(img,-S.bgW/2,-S.bgH/2);
   const tmp=S.bgW; S.bgW=S.bgH; S.bgH=tmp; // commit swap
+  refW=S.bgW; refH=S.bgH; // keep reference canvas in sync
   img.style.width=S.bgW+'px'; img.style.height=S.bgH+'px';
   img.src=c.toDataURL('image/png');
   fitView(); toast('Map rotated 90° ✓');
@@ -1636,7 +1784,7 @@ function showGuide(){document.getElementById('guideModal').classList.add('on');}
 // Create default floors: 2nd Floor (with default_plan) and Basement
 (function initFloors(){
   floors=[
-    {id:nextFid++,name:'2nd Floor',bgSrc:'',bgW:0,bgH:0,lib:[],placed:[],zoom:1,px:0,py:0,snap:false,nid:1,placeCount:0},
+    {id:nextFid++,name:'3rd Floor',bgSrc:'',bgW:0,bgH:0,lib:[],placed:[],zoom:1,px:0,py:0,snap:false,nid:1,placeCount:0},
     {id:nextFid++,name:'Basement', bgSrc:'',bgW:0,bgH:0,lib:[],placed:[],zoom:1,px:0,py:0,snap:false,nid:1,placeCount:0},
   ];
   currentFloorId=floors[0].id; // S already has empty state pointing to 2nd Floor
@@ -1668,12 +1816,16 @@ function loadImgIntoFloor(floorId, src){
       f.bgSrc=c.toDataURL('image/png');
     }catch(e){f.bgSrc=src;}
     f.bgW=tmp.naturalWidth; f.bgH=tmp.naturalHeight;
+    // First floor plan loaded sets the reference canvas size
+    if(!refW){refW=tmp.naturalWidth;refH=tmp.naturalHeight;}
+    // Store floor dims as ref dims so all floors share the same coordinate space
+    f.bgW=refW; f.bgH=refH;
     // If this is the active floor, apply to DOM immediately
     if(floorId===currentFloorId){
-      S.bgW=f.bgW; S.bgH=f.bgH;
+      S.bgW=refW; S.bgH=refH;
       const img=document.getElementById('bgImg');
       img.onload=()=>{
-        img.style.display='block';img.style.width=f.bgW+'px';img.style.height=f.bgH+'px';
+        img.style.display='block';img.style.width=refW+'px';img.style.height=refH+'px';
         fitView(); updStatus(); document.getElementById('dh').classList.add('hid');
       };
       img.src=f.bgSrc;
