@@ -272,7 +272,6 @@ input[type="file"]{display:none;}
   <button class="hb g" onclick="saveState()" title="Save everything — your map, equipment list, and all placed items. Choose to save in browser (quick) or to a file on your computer.">💾 Save My Work</button>
   <button class="hb" onclick="loadWork()" title="Open a previously saved work file, or restore from your last browser save.">📂 Load Saved Work</button>
   <div class="hs"></div>
-  <button class="hb" onclick="exportJSON()" title="Download the list of all placed equipment with their positions as a JSON file. Useful for sharing data with other systems.">📄 Export JSON</button>
   <button class="hb p" onclick="document.getElementById('exportPicModal').classList.add('on')" title="Save a screenshot of the floor map as a PNG image. Great for printing or sharing via email.">📸 Save as Picture</button>
   <button class="hb r" onclick="showClearModal()" title="Remove all equipment from the map canvas. Your equipment list on the left will be kept. This cannot be undone.">🗑 Remove All</button>
 </header>
@@ -499,6 +498,23 @@ input[type="file"]{display:none;}
   </div>
 </div>
 
+
+<div class="mo" id="savedSuccessModal" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="md" style="width:400px;max-width:95vw;">
+    <h3 style="color:var(--accent2);">✅ Work Saved!</h3>
+    <p style="margin-bottom:10px;">Your layout file has been downloaded to your computer.</p>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;font-size:12px;line-height:1.7;color:var(--muted);">
+      <b style="color:var(--text);display:block;margin-bottom:4px;">To continue where you left off:</b>
+      1. Open this app in your browser<br>
+      2. Click <b style="color:var(--accent2);">📂 Open Saved Work</b> in the toolbar<br>
+      3. Select the <code style="background:var(--surface3);padding:1px 5px;border-radius:3px;">.json</code> file you just downloaded<br>
+      4. Your floors, equipment, and layout will be fully restored
+    </div>
+    <div class="mdb" style="margin-top:14px;">
+      <button style="background:var(--accent2);border-color:var(--accent2);color:#0d1117;font-weight:600;" onclick="document.getElementById('savedSuccessModal').classList.remove('on')">Got it</button>
+    </div>
+  </div>
+</div>
 
 <div class="mo" id="loadModal" onclick="if(event.target===this)this.classList.remove('on')">
   <div class="md" style="width:360px;max-width:95vw;">
@@ -1367,14 +1383,18 @@ function toastAction(msg,btnLabel,btnFn){
 function saveState(){ saveToFile(); }
 
 function saveToFile(){
-  document.getElementById('saveModal').classList.remove('on');
-  const obj=buildSave();
-  const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='floorplan_state_'+Date.now()+'.json';
-  a.click();
-  markSaved(); toast('File saved to your computer ✓');
+  try{
+    const obj=buildSave();
+    const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='floorplan_state_'+Date.now()+'.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(a.href);},200);
+    markSaved();
+    document.getElementById('savedSuccessModal').classList.add('on');
+  }catch(e){toast('⚠ Save failed: '+e.message);}
 }
 
 function loadWork(){
@@ -1449,17 +1469,6 @@ document.getElementById('stateUpload').addEventListener('change',e=>{
 // ════════════════════════════════════════
 // EXPORT
 // ════════════════════════════════════════
-function exportJSON(){
-  if(!S.placed.length){toast('Nothing placed yet');return;}
-  const data={exported:new Date().toISOString(),items:S.placed.map(p=>({
-    name:p.name,type:p.type,make:p.make,model:p.model,hw_code:p.hw_code,
-    x:Math.round(p.x),y:Math.round(p.y)
-  }))};
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
-  a.download='layout_'+Date.now()+'.json';a.click();toast('JSON exported ✓');
-}
-
 function _rrect(ctx,x,y,w,h,r){
   ctx.beginPath();
   ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
